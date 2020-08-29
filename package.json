@@ -1,0 +1,52 @@
+{
+    "name": "@jitesoft/simple-webpack",
+    "version": "1.0.0",
+    "author": {
+        "name": "Johannes Tegnér",
+        "email": "johannes@jitesoft.com",
+        "url": "https://jitesoft.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jitesoft/simple-webpack"
+    },
+    "bugs": {
+        "url": "https://github.com/jitesoft/simple-webpack",
+        "email": "sec@jitesoft.com"
+    },
+    "main": "dist/index.js",
+    "dependencies": {
+        "@babel/runtime-corejs3": "^7.11.2"
+    },
+    "optionalDependencies": {
+        "@jitesoft/eslint-config": "*",
+        "eslint": "^7.7.0",
+        "babel-eslint": "^10.1.0",
+        "jest": "^26.4.0",
+        "babel-jest": "^26.3.0"
+    },
+    "devDependencies": {
+        "terser-webpack-plugin": "^4.1.0",
+        "mini-css-extract-plugin": "^0.11.0",
+        "optimize-css-assets-webpack-plugin": "^5.0.3",
+        "@babel/core": "^7.11.4",
+        "@jitesoft/babel-preset-main": "^2.5.1",
+        "babel-loader": "^8.1.0",
+        "style-loader": "^1.2.1",
+        "core-js": "^3.6.5",
+        "webpack": "^5.0.0-beta.28",
+        "webpack-cli": "^4.0.0-beta.8",
+        "cross-env": "^7.0.2",
+        "css-loader": "^4.2.2",
+        "sass-loader": "^10.0.1",
+        "sass": "^1.26.10",
+        "url-loader": "^4.1.0",
+        "file-loader": "^6.0.0"
+    },
+    "scripts": {
+        "watch": "cross-env NODE_ENV=development webpack --watch --progress",
+        "build": "webpack",
+        "build:prod": "cross-env NODE_ENV=production webpack -p",
+        "build:dev": "cross-env NODE_ENV=development webpack"
+    }
+}

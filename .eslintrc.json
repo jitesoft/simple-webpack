@@ -1,0 +1,13 @@
+{
+    "root": true,
+    "parser": "babel-eslint",
+    "extends": "@jitesoft/eslint-config/browser",
+    "overrides": [
+        {
+            "files": ["webpack.config.js"],
+            "env": {
+                "node": true
+            }
+        }
+    ]
+}
