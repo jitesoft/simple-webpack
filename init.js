@@ -4,6 +4,15 @@ const exist = require('fs').existsSync;
 const path = require('path');
 const flags = require('fs').constants;
 
+
+const createOrLogDir = async (path) => {
+  try {
+    await fs.mkdir(path,  { recursive: true });
+  } catch (ex) {
+    console.log(`Failed to create directory ${path}, this is probably because it already exist!`);
+  }
+}
+
 const run = async () => {
 
   if (!exist(path.resolve(process.cwd(), 'package.json'))) {
@@ -46,21 +55,9 @@ const run = async () => {
 
   console.log('Creating source and dist directories.');
 
-  try {
-    await fs.mkdir(path.resolve(process.cwd(), 'dist'));
-  } catch (ex) {
-    console.log('Failed to create directory "dist", this is probably because it already exist!');
-  }
-  try {
-    await fs.mkdir(path.resolve(process.cwd(), 'src', 'js'), { recursive: true });
-  } catch (ex) {
-    console.log('Failed to create directory "src/js", this is probably because it already exist!');
-  }
-  try {
-    await fs.mkdir(path.resolve(process.cwd(), 'src', 'style'), { recursive: true });
-  } catch (ex) {
-    console.log('Failed to create directory "src/style", this is probably because it already exist!');
-  }
+  await createOrLogDir(path.resolve(process.cwd(), 'dist'));
+  await createOrLogDir(path.resolve(process.cwd(), 'src', 'js'));
+  await createOrLogDir(path.resolve(process.cwd(), 'src', 'style'));
 
   console.log('Populating src and dist directories.');
   await fs.open(path.resolve(process.cwd(), 'src', 'style', 'index.scss'), flags.O_CREAT | flags.O_RDWR);
@@ -86,3 +83,4 @@ run().then(() => {
   console.log('All done! Have fun!');
   console.info('To start using the new scripts, run `npm i && npm run build` and check the other scripts in the package file!');
 }).catch(error => console.error(error));
+
