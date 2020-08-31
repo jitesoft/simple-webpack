@@ -21,7 +21,7 @@ const run = async () => {
   const intPkg = JSON.parse(await fs.readFile(path.resolve(__dirname, 'package.json')));
 
   console.log('Checking dependencies if there are any required dependencies missing...');
-  for (const key in Object.keys(intPkg.dependencies)) {
+  for (const key of Object.keys(intPkg.dependencies)) {
     if (!(key in pkg.dependencies)) {
       console.log(`Adding dependency ${key}`);
       pkg.dependencies[key] = intPkg.dependencies[key];
@@ -29,7 +29,7 @@ const run = async () => {
   }
 
   console.log('Checking dev dependencies if there are any required dev dependencies missing...');
-  for (const key in Object.keys(intPkg.devDependencies)) {
+  for (const key of Object.keys(intPkg.devDependencies)) {
     if (!(key in pkg.devDependencies)) {
       console.log(`Adding devDependency ${key}`);
       pkg.devDependencies[key] = intPkg.devDependencies[key];
@@ -37,7 +37,7 @@ const run = async () => {
   }
 
   console.log('Updating scripts...');
-  for (const key in Object.keys(intPkg.scripts)) {
+  for (const key of Object.keys(intPkg.scripts)) {
     if (!(key in pkg.scripts)) {
       console.log(`Adding new script ${key}`);
       pkg.scripts[key] = intPkg.scripts[key];
@@ -52,7 +52,7 @@ const run = async () => {
   await fs.open(path.resolve(process.cwd(), 'src', 'style', 'index.scss'), flags.O_CREAT | flags.O_RDWR);
   await fs.open(path.resolve(process.cwd(), 'src', 'js', 'index.js'), flags.O_CREAT | flags.O_RDWR);
 
-  console.log('Copying configuration files...')
+  console.log('Copying configuration files...');
   await fs.copyFile(path.resolve(__dirname, 'src', 'js', '.babelrc'), path.resolve(process.cwd(), 'src', 'js', '.babelrc'));
 
   console.log('Creating webpack file...');
