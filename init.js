@@ -56,7 +56,7 @@ const run = async () => {
   if (exist(path.resolve(process.cwd(), 'src', 'index.js'))) {
     console.log(`Failed to create ${path.resolve(process.cwd(), 'src', 'index.js')}, file already exist.`);
   } else {
-    await fs.copyFile(path.resolve(__dirname, 'src', 'index.js'), path.resolve(process.cwd(), 'src', 'index.js'));
+    await fs.copyFile(path.resolve(__dirname, 'templates', 'index.js'), path.resolve(process.cwd(), 'src', 'index.js'));
   }
 
   console.log('Copying configuration files...');
