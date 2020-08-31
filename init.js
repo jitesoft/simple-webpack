@@ -2,7 +2,7 @@
 const fs = require('fs').promises;
 const exist = require('fs').existsSync;
 const path = require('path');
-const flags = require('fs').constands;
+const flags = require('fs').constants;
 
 const run = async () => {
 
@@ -18,7 +18,7 @@ const run = async () => {
 
   const pkg = JSON.parse(await fs.readFile(path.resolve(process.cwd(), 'package.json')));
 
-  const intPkg = JSON.parse(await fs.readFile(path.resolve(__dirname, 'package.json')));
+  const intPkg = JSON.parse(await fs.readFile(path.resolve(__dirname, 'init-pkg.json')));
 
   console.log('Checking dependencies if there are any required dependencies missing...');
   for (const key of Object.keys(intPkg.dependencies)) {
@@ -57,8 +57,12 @@ const run = async () => {
 
   console.log('Creating webpack file...');
   await fs.copyFile(path.resolve(__dirname, 'webpack.config.js'), path.resolve(process.cwd(), 'webpack.config.js'));
+
+  console.log('Writing new package file...');
+  await fs.writeFile(path.resolve(process.cwd(), 'package.json'), JSON.stringify(pkg, null, 4));
 };
 
 run().then(() => {
   console.log('All done! Have fun!');
+  console.info('To start using the new scripts, run `npm i && npm run build` and check the other scripts in the package file!');
 }).catch(error => console.error(error));
