@@ -70,7 +70,7 @@ const run = async () => {
   }
 
   console.log('Copying configuration files...');
-  await fs.copyFile(path.resolve(__dirname, 'templates', '.babelrc'), path.resolve(process.cwd(), 'src', 'js', '.babelrc'));
+  await fs.copyFile(path.resolve(__dirname, 'templates', '.babelrc'), path.resolve(process.cwd(), 'src', '.babelrc'));
 
   console.log('Creating webpack file...');
   await fs.copyFile(path.resolve(__dirname, 'templates', 'webpack.config.js'), path.resolve(process.cwd(), 'webpack.config.js'));

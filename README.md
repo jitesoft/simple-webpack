@@ -6,10 +6,39 @@ Why make it hard? It's quite simple!
 
 ---
 
-This repository contains a simple webpack configuration, including a package.json file and a set of test files.  
-Make use of it as you wish!
+This repository contains a small init script which generates a simple webpack setup for web application development.  
+Other than the configuration, it updates your package.json file to include the required dependencies, devDependencies
+and scripts.
+
+The directory structure it creates looks like this:
+
+```
+// pwd
+webpack.config.js
+/dist
+/src
+  /.babelrc
+  /index.js
+  /js
+    /index.js
+  /style
+    /index.scss
+```
+
+If no package file is found, a default package file will be created.
+
+The intention is that the script should allow you to keep all your files intact (exception with the webpack and package files).
+If there are any issues with this, please let me know via github issues.
 
 **Usage**  
+
+Initialize your simple-webpack project!
+
+```
+npx github:@jitesoft/simple-webpack
+```
+
+Start building!
 
 ````
 npm i && npm run build      // depends on your node_env
