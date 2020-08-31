@@ -17,7 +17,6 @@ const run = async () => {
   }
 
   const pkg = JSON.parse(await fs.readFile(path.resolve(process.cwd(), 'package.json')));
-
   const intPkg = JSON.parse(await fs.readFile(path.resolve(__dirname, 'templates', 'package.json')));
 
   console.log('Checking dependencies if there are any required dependencies missing...');
