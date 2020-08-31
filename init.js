@@ -18,7 +18,7 @@ const run = async () => {
 
   const pkg = JSON.parse(await fs.readFile(path.resolve(process.cwd(), 'package.json')));
 
-  const intPkg = JSON.parse(await fs.readFile(path.resolve(__dirname, 'init-pkg.json')));
+  const intPkg = JSON.parse(await fs.readFile(path.resolve(__dirname, 'templates', 'package.json')));
 
   console.log('Checking dependencies if there are any required dependencies missing...');
   for (const key of Object.keys(intPkg.dependencies)) {
@@ -49,23 +49,21 @@ const run = async () => {
   await fs.mkdir(path.resolve(process.cwd(), 'src', 'js'), { recursive: true });
   await fs.mkdir(path.resolve(process.cwd(), 'src', 'style'), { recursive: true });
 
+  console.log('Populating src and dist directories.');
   await fs.open(path.resolve(process.cwd(), 'src', 'style', 'index.scss'), flags.O_CREAT | flags.O_RDWR);
   await fs.open(path.resolve(process.cwd(), 'src', 'js', 'index.js'), flags.O_CREAT | flags.O_RDWR);
 
-  await fs.writeFile(path.resolve(process.cwd(), 'src', 'index.js'), `// This file should just include index.js and index.css to allow a single point of entry.
-// Why? Cause it makes it easier for you!
-
-import './style/index.scss';
-import './js/index.js';
-
-// There we go! All done, now it builds! ;)
-`);
+  if (exist(path.resolve(process.cwd(), 'src', 'index.js')) {
+    console.log(`Failed to create ${path.resolve(process.cwd(), 'src', 'index.js')}, file already exist.`);
+  } else {
+    await fs.copyFile(path.resolve(__dirname, 'src', 'index.js'), path.resolve(process.cwd(), 'src', 'index.js'));
+  }
 
   console.log('Copying configuration files...');
-  await fs.copyFile(path.resolve(__dirname, 'src', 'js', '.babelrc'), path.resolve(process.cwd(), 'src', 'js', '.babelrc'));
+  await fs.copyFile(path.resolve(__dirname, 'templates', '.babelrc'), path.resolve(process.cwd(), 'src', 'js', '.babelrc'));
 
   console.log('Creating webpack file...');
-  await fs.copyFile(path.resolve(__dirname, 'webpack.config.js'), path.resolve(process.cwd(), 'webpack.config.js'));
+  await fs.copyFile(path.resolve(__dirname, 'templates', 'webpack.config.js'), path.resolve(process.cwd(), 'webpack.config.js'));
 
   console.log('Writing new package file...');
   await fs.writeFile(path.resolve(process.cwd(), 'package.json'), JSON.stringify(pkg, null, 4));
