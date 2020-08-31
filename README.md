@@ -35,6 +35,9 @@ If there are any issues with this, please let me know via github issues.
 Initialize your simple-webpack project!
 
 ```
+// From NPM
+npx @jitesoft/simple-webpack
+// Or from repo
 npx github:@jitesoft/simple-webpack
 ```
 
