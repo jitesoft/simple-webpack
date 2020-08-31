@@ -20,7 +20,7 @@ module.exports = {
 
   }),
   // If the NODE_ENV is not set, we default to production.
-  mode: process.env.NODE_ENV ?? 'production',
+  mode: process.env.NODE_ENV ? process.env.NODE_ENV : 'production',
   // The target for this config is WEB.
   // Due to this, the file will be slightly larger than if we just made it plain js.
   // This is because we use both babel (which includes some stuff to make features available for us,
