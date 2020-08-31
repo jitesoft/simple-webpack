@@ -4,7 +4,7 @@
     "extends": "@jitesoft/eslint-config/browser",
     "overrides": [
         {
-            "files": ["webpack.config.js"],
+            "files": ["webpack.config.js", "init.js"],
             "env": {
                 "node": true
             }
