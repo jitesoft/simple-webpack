@@ -53,7 +53,7 @@ const run = async () => {
   await fs.open(path.resolve(process.cwd(), 'src', 'style', 'index.scss'), flags.O_CREAT | flags.O_RDWR);
   await fs.open(path.resolve(process.cwd(), 'src', 'js', 'index.js'), flags.O_CREAT | flags.O_RDWR);
 
-  if (exist(path.resolve(process.cwd(), 'src', 'index.js')) {
+  if (exist(path.resolve(process.cwd(), 'src', 'index.js'))) {
     console.log(`Failed to create ${path.resolve(process.cwd(), 'src', 'index.js')}, file already exist.`);
   } else {
     await fs.copyFile(path.resolve(__dirname, 'src', 'index.js'), path.resolve(process.cwd(), 'src', 'index.js'));
