@@ -52,6 +52,15 @@ const run = async () => {
   await fs.open(path.resolve(process.cwd(), 'src', 'style', 'index.scss'), flags.O_CREAT | flags.O_RDWR);
   await fs.open(path.resolve(process.cwd(), 'src', 'js', 'index.js'), flags.O_CREAT | flags.O_RDWR);
 
+  await fs.writeFile(path.resolve(process.cwd(), 'src', 'index.js'), `// This file should just include index.js and index.css to allow a single point of entry.
+// Why? Cause it makes it easier for you!
+
+import './style/index.scss';
+import './js/index.js';
+
+// There we go! All done, now it builds! ;)
+`);
+
   console.log('Copying configuration files...');
   await fs.copyFile(path.resolve(__dirname, 'src', 'js', '.babelrc'), path.resolve(process.cwd(), 'src', 'js', '.babelrc'));
 
