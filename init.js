@@ -9,6 +9,7 @@ const run = async () => {
   if (!exist(path.resolve(process.cwd(), 'package.json'))) {
     console.log('No package file exist. Creating a base package file!');
     await fs.writeFile(path.resolve(process.cwd(), 'package.json'), JSON.stringify({
+      name: '@your-org/a-package',
       dependencies: {},
       devDependencies: {},
       scripts: {},
@@ -44,9 +45,22 @@ const run = async () => {
   }
 
   console.log('Creating source and dist directories.');
-  await fs.mkdir(path.resolve(process.cwd(), 'dist'));
-  await fs.mkdir(path.resolve(process.cwd(), 'src', 'js'), { recursive: true });
-  await fs.mkdir(path.resolve(process.cwd(), 'src', 'style'), { recursive: true });
+
+  try {
+    await fs.mkdir(path.resolve(process.cwd(), 'dist'));
+  } catch (ex) {
+    console.log('Failed to create directory "dist", this is probably because it already exist!');
+  }
+  try {
+    await fs.mkdir(path.resolve(process.cwd(), 'src', 'js'), { recursive: true });
+  } catch (ex) {
+    console.log('Failed to create directory "src/js", this is probably because it already exist!');
+  }
+  try {
+    await fs.mkdir(path.resolve(process.cwd(), 'src', 'style'), { recursive: true });
+  } catch (ex) {
+    console.log('Failed to create directory "src/style", this is probably because it already exist!');
+  }
 
   console.log('Populating src and dist directories.');
   await fs.open(path.resolve(process.cwd(), 'src', 'style', 'index.scss'), flags.O_CREAT | flags.O_RDWR);
