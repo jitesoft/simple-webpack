@@ -2,6 +2,9 @@
     "name": "@jitesoft/simple-webpack",
     "version": "1.0.0",
     "bin": "init.js",
+    "files": [
+        "templates"
+    ],
     "author": {
         "name": "Johannes Tegnér",
         "email": "johannes@jitesoft.com",
