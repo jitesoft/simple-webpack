@@ -66,9 +66,30 @@ module.exports = {
     // Some plugins do although pick those up, allowing us to for example optimize images!
     new CopyWebpackPlugin({
       patterns: [
-        { from: 'assets/images/', to: 'images/', noErrorOnMissing: true },
-        { from: 'assets/static/', to: '', noErrorOnMissing: true },
-        { from: 'assets/fonts/', to: 'fonts/', noErrorOnMissing: true }
+        {
+          from: 'assets/images/',
+          to: 'images/',
+          noErrorOnMissing: true,
+          globOptions: {
+            dot: false
+          }
+        },
+        {
+          from: 'assets/static/',
+          to: '',
+          noErrorOnMissing: true,
+          globOptions: {
+            dot: false
+          }
+        },
+        {
+          from: 'assets/fonts/',
+          to: 'fonts/',
+          noErrorOnMissing: true,
+          globOptions: {
+            dot: false
+          }
+        }
       ]
     }),
     // Imagemin compresses images passed through it, yay!
@@ -99,7 +120,7 @@ module.exports = {
     // one loader.
     rules: [
       {
-        // Fonts will be "moved" with the file-loader.
+        // Fonts will be "moved" with the file-loader if included in JS.
         test: /\.(eot|ttf|woff|woff2|otf)$/i,
         use: [
           {
