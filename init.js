@@ -5,13 +5,17 @@ const path = require('path');
 const flags = require('fs').constants;
 
 
-const createOrLogDir = async (path) => {
+const createOrLogDir = async (p) => {
   try {
-    await fs.mkdir(path,  { recursive: true });
+    await fs.mkdir(p,  { recursive: true });
   } catch (ex) {
-    console.log(`Failed to create directory ${path}, this is probably because it already exist!`);
+    console.log(`Failed to create directory ${p}, this is probably because it already exist!`);
   }
 }
+
+const touch = async (p) => {
+  return await fs.open(p, flags.O_CREAT | flags.O_RDWR);
+};
 
 const run = async () => {
 
@@ -19,10 +23,10 @@ const run = async () => {
     console.log('No package file exist. Creating a base package file!');
     await fs.writeFile(path.resolve(process.cwd(), 'package.json'), JSON.stringify({
       name: '@your-org/a-package',
+      main: 'dist/index.js',
       dependencies: {},
       devDependencies: {},
-      scripts: {},
-      main: 'dist/index.js'
+      scripts: {}
     }));
   }
 
@@ -53,15 +57,27 @@ const run = async () => {
     }
   }
 
-  console.log('Creating source and dist directories.');
+  console.log('Creating directories.');
 
   await createOrLogDir(path.resolve(process.cwd(), 'dist'));
   await createOrLogDir(path.resolve(process.cwd(), 'src', 'js'));
   await createOrLogDir(path.resolve(process.cwd(), 'src', 'style'));
+  await createOrLogDir(path.resolve(process.cwd(), 'assets', 'images'));
+  await createOrLogDir(path.resolve(process.cwd(), 'assets', 'fonts'));
+  await createOrLogDir(path.resolve(process.cwd(), 'assets', 'static'));
+
+
+  await touch(path.resolve(process.cwd(), 'dist', '.gitkeep'));
+  await touch(path.resolve(process.cwd(), 'src', 'js'));
+  await touch(path.resolve(process.cwd(), 'src', 'style'));
+  await touch(path.resolve(process.cwd(), 'assets', 'images', '.gitkeep'));
+  await touch(path.resolve(process.cwd(), 'assets', 'fonts', '.gitkeep'));
+  await touch(path.resolve(process.cwd(), 'assets', 'static', '.gitkeep'));
+
 
   console.log('Populating src and dist directories.');
-  await fs.open(path.resolve(process.cwd(), 'src', 'style', 'index.scss'), flags.O_CREAT | flags.O_RDWR);
-  await fs.open(path.resolve(process.cwd(), 'src', 'js', 'index.js'), flags.O_CREAT | flags.O_RDWR);
+  await touch(path.resolve(process.cwd(), 'src', 'style', 'index.scss'));
+  await touch(path.resolve(process.cwd(), 'src', 'js', 'index.js'));
 
   if (exist(path.resolve(process.cwd(), 'src', 'index.js'))) {
     console.log(`Failed to create ${path.resolve(process.cwd(), 'src', 'index.js')}, file already exist.`);

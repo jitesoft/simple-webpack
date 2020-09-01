@@ -9,6 +9,23 @@ const Path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const ImageMinPlugin = require('imagemin-webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+
+// These 'plugins' are specific for imagemin, which we use both as a plugin
+// and as a loader. So instead of writing them twice, they are declared here.
+// Observe: the plugins used here are all using lossless optimization,
+// the optimization have to be specified more if you want to get more or
+// less optimized imaged, check out:
+// https://github.com/webpack-contrib/image-minimizer-webpack-plugin
+// https://github.com/imagemin/imagemin
+const imgminPlugins = [
+  'gifsicle',
+  'jpegtran',
+  'optipng',
+  'svgo',
+  'webp'
+];
 
 module.exports = {
   // If the environment is production, we want to use some type of
@@ -45,6 +62,26 @@ module.exports = {
     chunkFilename: 'js/[chunkhash:16].js'
   },
   plugins: [
+    // CopyWebpackPlugin basically just copies the files in the directories defined.
+    // Some plugins do although pick those up, allowing us to for example optimize images!
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'assets/images/', to: 'images/', noErrorOnMissing: true },
+        { from: 'assets/static/', to: '', noErrorOnMissing: true },
+        { from: 'assets/fonts/', to: 'fonts/', noErrorOnMissing: true }
+      ]
+    }),
+    // Imagemin compresses images passed through it, yay!
+    // It's important that this plugin is defined AFTER the copy webpack plugin.
+    // If it is not, it will not be able to compress the images.
+    new ImageMinPlugin({
+      test: /\.(jpe?g|png|gif|tif|webp|svg)$/i,
+      imageminOptions: {
+        plugins: imgminPlugins
+      },
+      name: '[path][name].[ext]',
+      loader: true
+    }),
     // This plugin allow us to extract the CSS from the javascript.
     // Without it the css would be included in the JS code, something some
     // people might get a bit confused by!
@@ -110,13 +147,13 @@ module.exports = {
         // In this configuration all the images are moved with the `file-loader`.
         // I usually prefer to bake the smaller images into the javascript or css
         // but this will be more easy to manage!
-        test: /\.(ico|png|jpe?g|gif|svg)$/i,
+        test: /\.(ico|jpe?g|png|gif|tif|webp|svg)$/i,
         use: [
           {
+            // Most image types will be replaced by compressed images (imagemin plugin).
             loader: 'file-loader',
             options: {
-              outputPath: 'images',
-              name: '[name].[ext]'
+              name: '[path][name].[ext]'
             }
           }
         ]
