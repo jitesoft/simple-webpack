@@ -68,8 +68,6 @@ const run = async () => {
 
 
   await touch(path.resolve(process.cwd(), 'dist', '.gitkeep'));
-  await touch(path.resolve(process.cwd(), 'src', 'js'));
-  await touch(path.resolve(process.cwd(), 'src', 'style'));
   await touch(path.resolve(process.cwd(), 'assets', 'images', '.gitkeep'));
   await touch(path.resolve(process.cwd(), 'assets', 'fonts', '.gitkeep'));
   await touch(path.resolve(process.cwd(), 'assets', 'static', '.gitkeep'));
