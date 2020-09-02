@@ -1,6 +1,6 @@
 {
     "name": "@jitesoft/simple-webpack",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "bin": "init.js",
     "files": [
         "templates"
