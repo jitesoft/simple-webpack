@@ -56,6 +56,7 @@ npm i && npm run build      // depends on your node_env
 npm i && npm run build:prod // prod either way!
 npm i && npm run build:dev  // dev either way!
 npm i && npm run watch      // watches your files and compiles them (dev only)
+npm i && npm run serve      // Serve a http client on 0.0.0.0:9000 
 ````
 
 ## More details
@@ -64,7 +65,15 @@ If you wish to know what everything in the webpack file does, check the file its
 well commented!  
 But, either way, feel free to read here if you can't figure out what webpack is doing even then!
 
-E## Compression and such
+### Public Path
+
+When webpack compiles your assets, it will change all asset paths to fit the new location of the files.  
+The default public path used is `/`, that is, it expects the content of `dist` to be placed in the root web directory.  
+
+To change this, you can either use an environment variable (`PUBLIC_PATH`) or change the `PUBLIC_PATH` variable in the
+`webpack.config.js` file. Remember, the public path is the path _from_ the web-root.
+
+### Compression and such
 
 #### JS and Css
 
@@ -99,8 +108,28 @@ The filenames will be kept intact.
 
 #### Fonts
 
-Fonts are not tampered with, while they are moved to the `dist/fonts` directory in case they are placed in the `assets/fonts` dir 
+Fonts are not tampered with, but they are moved to the `dist/fonts` directory in case they are placed in the `assets/fonts` dir 
 or included in JavaScript or in SCSS.
+
+
+### Serve
+
+You can allow webpack to serve your content as a http server (uses nodejs express), the current settings allow you
+to access the assets on localhost port 9000. The `localhost` and `*.local` domains are set to be accepted,
+but read the comments in the webpack file if you wish to enable more or turn off blocking over all.
+
+The server is set to inject a hot module swap client inside the index.js file, so if enabled, it will allow for hot swapping.
+
+When using the dev server, the public path will have to be used.
+
+Including the assets is done by adding script tags pointing to the specific file you need:
+
+```text
+<script src="localhost:9000/index.js"></script>
+```
+
+Further on, it is possible to use the dev server as a proxy for another page. In case you wish to do this, refer to the
+documentation for [`webpack DevServer`](https://webpack.js.org/configuration/dev-server/).
 
 ---
 

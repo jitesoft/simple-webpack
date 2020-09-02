@@ -25,12 +25,14 @@
         "imagemin-jpegtran": "^7.0.0",
         "imagemin-optipng": "^8.0.0",
         "imagemin-svgo": "^8.0.0",
-        "imagemin-webp": "^6.0.0"
+        "imagemin-webp": "^6.0.0",
+        "@webpack-cli/serve": "^1.0.1-alpha.5"
     },
     "scripts": {
         "watch": "cross-env NODE_ENV=development webpack --watch",
         "build": "webpack",
         "build:prod": "cross-env NODE_ENV=production webpack -p",
-        "build:dev": "cross-env NODE_ENV=development webpack"
+        "build:dev": "cross-env NODE_ENV=development webpack",
+        "serve": "cross-env NODE_ENV=development webpack-cli serve"
     }
 }

@@ -1,16 +1,17 @@
 /* eslint-disable */
+// If you wish to have the root directory of all the assets built
+// with a given path, say for example, you wish to put all the assets
+// in a `my-assets/lalala` public url path and reach them from somewhere else,
+// change the following variable to that path!
+const PUBLIC_PATH = process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '';
+
 const Path = require('path');
-//
-// This is the initial webpack file. All the stuff that we want webpack to do
-// for all environments we define here!
-// Then we merge the environment specific values into the
-// shared values and it will just do everything super nice!
-//
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const ImageMinPlugin = require('imagemin-webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const webpack = require('webpack');
 
 // These 'plugins' are specific for imagemin, which we use both as a plugin
 // and as a loader. So instead of writing them twice, they are declared here.
@@ -26,6 +27,13 @@ const imgminPlugins = [
   'svgo',
   'webp'
 ];
+
+const devPlugins = [];
+if (process.env.NODE_ENV === 'development') {
+  devPlugins.push(
+    new webpack.HotModuleReplacementPlugin()
+  );
+}
 
 module.exports = {
   // If the environment is production, we want to use some type of
@@ -101,6 +109,7 @@ module.exports = {
         plugins: imgminPlugins
       },
       name: '[path][name].[ext]',
+      publicPath: `${PUBLIC_PATH}/images`,
       loader: true
     }),
     // This plugin allow us to extract the CSS from the javascript.
@@ -108,8 +117,10 @@ module.exports = {
     // people might get a bit confused by!
     new MiniCssExtractPlugin({
       filename: 'index.css',
-      chunkFilename: '[id].css'
-    })
+      chunkFilename: 'css/[id].css',
+      publicPath: `${PUBLIC_PATH}/`
+    }),
+    ...devPlugins
   ],
   module: {
     // Rules is where the real magic happens.
@@ -126,7 +137,9 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              outputPath: 'fonts'
+              outputPath: 'fonts',
+              name: '[name].[ext]',
+              publicPath: `${PUBLIC_PATH}/fonts`
             }
           }
         ]
@@ -151,8 +164,9 @@ module.exports = {
           {
             loader: MiniCssExtractPlugin.loader,
             options: {
-              publicPath: '/dist',
-              name: Path.resolve(__dirname, 'dist', 'index.css')
+              outputPath: '',
+              publicPath: `${PUBLIC_PATH}/`,
+              name: '[name].[ext]'
             }
           },
           'css-loader',
@@ -174,11 +188,36 @@ module.exports = {
             // Most image types will be replaced by compressed images (imagemin plugin).
             loader: 'file-loader',
             options: {
-              name: '[path][name].[ext]'
+              outputPath: 'images',
+              name: '[name].[ext]',
+              publicPath: `${PUBLIC_PATH}/images`,
             }
           }
         ]
       }
+    ]
+  },
+  devServer: {
+    // For full options and more in depth description of the devserver, check
+    // out the following link: https://webpack.js.org/configuration/dev-server/
+    contentBase: Path.resolve(__dirname, 'dist'),
+    contentBasePublicPath: `${PUBLIC_PATH}/`,
+    publicPath: `${PUBLIC_PATH}/`,
+    compress: true,
+    port: 9000,
+    injectClient: true,
+    hot: true,
+    overlay: {
+      errors: true,
+      warnings: false
+    },
+    // You can uncomment the below line if you don't want to bother
+    // with 'allowedHosts' list. But it comes with security
+    // risks in case you are exposing the application to the "open net"!
+    // disableHostCheck: true,
+    allowedHosts: [
+      '.local',
+      'localhost'
     ]
   }
 };
