@@ -1,15 +1,5 @@
 /* eslint-disable */
-// If you wish to have the root directory of all the assets built
-// with a given path, say for example, you wish to put all the assets
-// in a `my-assets/lalala` public url path and reach them from somewhere else,
-// change the following variable to that path!
-const PUBLIC_PATH = process.env.PUBLIC_PATH || ''; // Deprecated.
-
-// Environment variables that can be used!
-const SW_PUBLIC_PATH = process.env.SW_PUBLIC_PATH || PUBLIC_PATH;
-const SW_PROXY_URI = process.env.PROXY_URI || null;
-const SW_DEV_SERVER_PORT = process.env.SW_DEV_SERVER_PORT || 9000;
-
+// These are all the packages that we directly use in the configuration.
 const Path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
@@ -20,45 +10,76 @@ const WebpPlugin = require('imagemin-webp-webpack-plugin');
 const webpack = require('webpack');
 const pkg = require('./package.json');
 
-// These 'plugins' are specific for imagemin, which we might want to
-// use both as a plugin and as a loader.
-// So instead of writing them twice, they are declared here.
-// Observe: the plugins used here are all using lossless optimization,
-// the optimization have to be specified more if you want to get more or
-// less optimized imaged, check out:
-// https://github.com/webpack-contrib/image-minimizer-webpack-plugin
-// https://github.com/imagemin/imagemin
-const imgminPlugins = [
-  [
-    'mozjpeg', {
-      quality: 70
-    }
-  ],
-  [ 'gifsicle', { } ],
-  [ 'optipng', {} ],
-  [ 'svgo', {} ]
-];
+// All configuration that a user is intended to do themselves, that is, you
+// are loaded here from env variables, or if not defined there, the package file.
+// Environment variables that can be used!
+const publicPath = process.env.SW_PUBLIC_PATH || pkg.config.publicPath;
+const proxyUri = process.env.PROXY_URI || pkg.config.proxyUri;
+const devServerPort = process.env.SW_DEV_SERVER_PORT || pkg.config.devServerPort;
 
-const plugins = [];
+// The following lists and objects are created here because
+// they are used both in the development and production versions, but with
+// different configurations.
+// For example. If we use the dev-server, we don't want the assets to be
+// emitted. If we run development, we don't want the dev-server to inject
+// a websocket script into the index.js file.
+let plugins = [];
 const extraCssLoaders = [];
 const extraImageLoaders = [];
 const extraFontLoaders = [];
 const extraJsLoaders = [];
 let devServer = {};
+
+// Due to a few plugins requiring to be in specific indexes of the array of plugins
+// and for them to run both in dev and prod, they are defined here as variables
+// and then included where they are needed.
+
+// This plugin will convert all jpeg and png images into webp images
+// it does not replace them, but instead creates an alternative webp image
+// which is a lot more suitable for webpages.
+// The quality is set to 65 to give a good quality while it still makes
+// most images quite a bit smaller.
+const webpH = new WebpPlugin({
+  config: [{
+    test: /\.(jpe?g|png)$/i,
+    options: {
+      quality: 65
+    }
+  }]
+});
+// You might notice here that this is almost identical to the above plugin.
+// It is, while in this one, we use the lowest possible compression to make
+// the image as small as possible.
+// The produced image will have another file-end (name.ext.webp instead of
+// name.webp) and could be used as a preload image in case the quality
+// is too low for "real" usage.
+const webpL = new WebpPlugin({
+  config: [{
+    test: /\.(jpe?g|png)$/i,
+    options: {
+      quality: 1
+    }
+  }],
+  overrideExtension: false
+});
+
+
 if (process.env.NODE_ENV === 'development') {
   plugins.push(
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
+    webpH,
+    webpL
   );
 
   devServer = {
     // For full options and more in depth description of the devserver, check
     // out the following link: https://webpack.js.org/configuration/dev-server/
     contentBase: Path.resolve(__dirname, 'dist'),
-    contentBasePublicPath: `${SW_PUBLIC_PATH}/`,
-    publicPath: `${SW_PUBLIC_PATH}/`,
+    contentBasePublicPath: `${publicPath}/`,
+    publicPath: `${publicPath}/`,
     compress: true,
     writeToDisk: true,
-    port: SW_DEV_SERVER_PORT,
+    port: devServerPort,
     hot: true,
     stats: 'none', //'minimal',
     injectClient: true,
@@ -75,7 +96,6 @@ if (process.env.NODE_ENV === 'development') {
       'localhost'
     ],
     onListening: function(server) {
-      console.info('STARTING!');
       const port = server.listeningApp.address().port;
       console.info('********************************************************************************');
       console.info('*          @jitesoft/simple-webpack (and WebPack) presents!                    *');
@@ -90,11 +110,11 @@ if (process.env.NODE_ENV === 'development') {
     }
   };
 
-  if (SW_PROXY_URI !== null) {
+  if (proxyUri !== null) {
     devServer.index = '';
     devServer.proxy = {
       context: () => true,
-      target: SW_PROXY_URI
+      target: proxyUri
     }
   }
 
@@ -104,7 +124,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
     loader: MiniCssExtractPlugin.loader,
     options: {
       outputPath: '',
-      publicPath: `${SW_PUBLIC_PATH}/`,
+      publicPath: `${publicPath}/${pkg.config.css.outputDir}`,
       name: '[name].[ext]',
       hmr: devServer.hot || false
     }
@@ -117,7 +137,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
       patterns: [
         {
           from: 'assets/images/',
-          to: 'images/',
+          to: pkg.config.images.outputDir,
           noErrorOnMissing: true,
           globOptions: {
             dot: false
@@ -125,7 +145,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
         },
         {
           from: 'assets/static/',
-          to: '',
+          to: pkg.config.static.outputDir,
           noErrorOnMissing: true,
           globOptions: {
             dot: false
@@ -133,7 +153,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
         },
         {
           from: 'assets/fonts/',
-          to: 'fonts/',
+          to: pkg.config.fonts.outputDir,
           noErrorOnMissing: true,
           globOptions: {
             dot: false
@@ -141,44 +161,23 @@ if (!process.env.WEBPACK_DEV_SERVER) {
         }
       ]
     }),
-    // This plugin will convert all jpeg and png images into webp images
-    // it does not replace them, but instead creates an alternative webp image
-    // which is a lot more suitable for webpages.
-    // The quality is set to 65 to give a good quality while it still makes
-    // most images quite a bit smaller.
-    new WebpPlugin ({
-      config: [{
-        test: /\.(jpe?g|png)$/i,
-        options: {
-          quality: 65
-        }
-      }]
-    }),
-    // You might notice here that this is almost identical to the above plugin.
-    // It is, while in this one, we use the lowest possible compression to make
-    // the image as small as possible.
-    // The produced image will have another file-end (name.ext.webp instead of
-    // name.webp) and could be used as a preload image in case the quality
-    // is too low for "real" usage.
-    new WebpPlugin ({
-      config: [{
-        test: /\.(jpe?g|png)$/i,
-        options: {
-          quality: 1
-        }
-      }],
-      overrideExtension: false
-    }),
+    webpH,
+    webpL,
     // Imagemin compresses images passed through it, yay!
     // It's important that this plugin is defined AFTER the copy webpack plugin.
     // If it is not, it will not be able to compress the images.
     new ImageMinPlugin({
       test: /\.(jpe?g|png|gif|tif|svg)$/i,
       imageminOptions: {
-        plugins: imgminPlugins
+        // All the imagemin plugins are loaded from an array in the package.json config
+        // property. You can change the plugin options from there if wanted.
+        // Check out the following links for more specific information.
+        // https://github.com/webpack-contrib/image-minimizer-webpack-plugin
+        // https://github.com/imagemin/imagemin
+        plugins: pkg.config.images.plugins
       },
       name: '[path][name].[ext]',
-      publicPath: `${SW_PUBLIC_PATH}/images`,
+      publicPath: `${publicPath}/${pkg.config.images.outputDir}`,
       loader: true
     }),
     // This plugin allow us to extract the CSS from the javascript.
@@ -186,34 +185,14 @@ if (!process.env.WEBPACK_DEV_SERVER) {
     // people might get a bit confused by!
     new MiniCssExtractPlugin({
       filename: 'index.css',
-      chunkFilename: 'css/[id].css',
-      publicPath: `${SW_PUBLIC_PATH}/`
-    }),
-    // This last part is a custom plugin.
-    // Due to the `webp` plugin not allowing us to define a name
-    // of the output file by ourselves, this little plugin is used
-    // to rename the image from `[name].[ext].webp` to `[name].low.webp`.
-    new (class {
-      apply(compiler) {
-        compiler.hooks.emit.tap('RenamePlugin', (compilation) => {
-          const names = Object.keys(compilation.assets);
-          const reg = /.*[.](jpe?g|png)[.]webp$/
-          let ext, name, newName;
-          for (let i = names.length; i-->0;) {
-            name = names[i];
-            if (reg.test(name)) {
-              ext = name.match(reg)[1];
-              newName = name.replace(`.${ext}.webp`, '.low.webp');
-              compilation.assets[newName] = compilation.assets[name];
-              delete compilation.assets[name];
-            }
-          }
-        });
-      }
+      chunkFilename: 'chunks/[id].css',
+      publicPath: `${publicPath}/${pkg.config.css.outputDir}`
     })
   );
 }
 
+// So... Here comes the "real" configuration. All the other stuff is only for
+// plugins and such. This is the actual webpack config!
 module.exports = {
   // If the environment is production, we want to use some type of
   // minifier for the JS and CSS.
@@ -244,10 +223,32 @@ module.exports = {
     // scripts to load asynchronously instead of one big file.
     filename: 'index.js',
     // The chunkFilename is a hash of the file.
-    chunkFilename: 'js/[chunkhash:16].js'
+    chunkFilename: 'chunks/[chunkhash:16].js'
   },
   plugins: [
-    ...plugins
+    ...plugins,
+    // This (always) last plugin is a custom plugin.
+    // Due to the `webp` plugin not allowing us to define a name
+    // of the output file by ourselves, this little plugin is used
+    // to rename the image from `[name].[ext].webp` to `[name].low.webp`.
+    new (class {
+      apply(compiler) {
+        compiler.hooks.emit.tap('RenamePlugin', (compilation) => {
+          const names = Object.keys(compilation.assets);
+          const reg = /.*[.](jpe?g|png)[.]webp$/
+          let ext, name, newName;
+          for (let i = names.length; i-->0;) {
+            name = names[i];
+            if (reg.test(name)) {
+              ext = name.match(reg)[1];
+              newName = name.replace(`.${ext}.webp`, '.low.webp');
+              compilation.assets[newName] = compilation.assets[name];
+              delete compilation.assets[name];
+            }
+          }
+        });
+      }
+    })
   ],
   module: {
     // Rules is where the real magic happens.
@@ -265,9 +266,9 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              outputPath: 'fonts',
+              outputPath: pkg.config.fonts.outputDir,
               name: '[name].[ext]',
-              publicPath: `${SW_PUBLIC_PATH}/fonts`
+              publicPath: `${publicPath}/${pkg.config.fonts.outputDir}`
             }
           }
         ]
@@ -315,9 +316,9 @@ module.exports = {
             // Most image types will be replaced by compressed images (imagemin plugin).
             loader: 'file-loader',
             options: {
-              outputPath: 'images',
+              outputPath: pkg.config.images.outputDir,
               name: '[name].[ext]',
-              publicPath: `${SW_PUBLIC_PATH}/images`,
+              publicPath: `${publicPath}/${pkg.config.images.outputDir}`,
             }
           }
         ]

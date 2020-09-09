@@ -27,12 +27,15 @@ const run = async () => {
       version: '1.0.0',
       dependencies: {},
       devDependencies: {},
-      scripts: {}
+      scripts: {},
+      config: {}
     }));
   }
 
   const pkg = JSON.parse(await fs.readFile(path.resolve(process.cwd(), 'package.json')));
   const intPkg = JSON.parse(await fs.readFile(path.resolve(__dirname, 'templates', 'package.json')));
+
+  pkg.config = intPkg.config;
 
   console.log('Checking dependencies if there are any required dependencies missing...');
   for (const key of Object.keys(intPkg.dependencies)) {
