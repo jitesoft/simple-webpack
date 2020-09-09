@@ -16,9 +16,9 @@ const TerserJSPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const ImageMinPlugin = require('imagemin-webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ImageminWebpWebpackPlugin= require("imagemin-webp-webpack-plugin");
+const WebpPlugin = require('imagemin-webp-webpack-plugin');
 const webpack = require('webpack');
-const pkg = require('./package.json')
+const pkg = require('./package.json');
 
 // These 'plugins' are specific for imagemin, which we might want to
 // use both as a plugin and as a loader.
@@ -146,7 +146,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
     // which is a lot more suitable for webpages.
     // The quality is set to 65 to give a good quality while it still makes
     // most images quite a bit smaller.
-    new ImageminWebpWebpackPlugin({
+    new WebpPlugin ({
       config: [{
         test: /\.(jpe?g|png)$/i,
         options: {
@@ -160,7 +160,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
     // The produced image will have another file-end (name.ext.webp instead of
     // name.webp) and could be used as a preload image in case the quality
     // is too low for "real" usage.
-    new ImageminWebpWebpackPlugin({
+    new WebpPlugin ({
       config: [{
         test: /\.(jpe?g|png)$/i,
         options: {
@@ -188,7 +188,32 @@ if (!process.env.WEBPACK_DEV_SERVER) {
       filename: 'index.css',
       chunkFilename: 'css/[id].css',
       publicPath: `${SW_PUBLIC_PATH}/`
-    }));
+    }),
+    // This last part is a custom plugin.
+    // Due to the `webp` plugin not allowing us to define a name
+    // of the output file by ourselves, this little plugin is used
+    // to rename the image from `[name].[ext].webp` to `[name].low.webp`.
+    new (class {
+      apply(compiler) {
+        compiler.hooks.emit.tap('RenamePlugin', (compilation) => {
+          const names = Object.keys(compilation.assets);
+          const reg = /.*[.](jpe?g|png)[.]webp$/
+          let ext, name, newName;
+          for (let i = names.length; i-->0;) {
+            name = names[i];
+            if (reg.test(name)) {
+              ext = name.match(reg)[1];
+              newName = name.replace(`.${ext}.webp`, '.low.webp');
+              ext = name.match(reg)[1];
+              newName = name.replace(`.${ext}.webp`, '.low.webp');
+              compilation.assets[newName] = compilation.assets[name];
+              delete compilation.assets[name];
+            }
+          }
+        });
+      }
+    })
+  );
 }
 
 module.exports = {

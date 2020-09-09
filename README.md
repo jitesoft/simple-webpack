@@ -124,9 +124,9 @@ be compressed and then placed in the same directory.
 The filenames will be kept intact.
 
 Webp images will be left as is (and copied to the images dist dir), while all PNG and JPG
-images will get two webp siblings in the directory (`[name].webp` and `[name].[ext].webp`).  
+images will get two webp siblings in the directory (`[name].webp` and `[name].low.webp`).  
 
-The `[name].[ext].webp` image is compressed with lowest quality and (if not good enough for you) a good choice to use
+The `[name].low.webp` image is compressed with lowest quality and (if not good enough for you) a good choice to use
 as a pre-load image in case the other images are large, the `[name].webp` uses a higher quality which should be
 enough for most cases.
 
