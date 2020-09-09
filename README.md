@@ -160,13 +160,14 @@ Including the assets is done by adding script tags pointing to the specific file
 <script src="localhost:9000/index.js"></script>
 ```
 
-Further on, it is possible to use the dev server as a proxy for another page. In case you wish to do this, refer to the
-documentation for [`webpack DevServer`](https://webpack.js.org/configuration/dev-server/).
+You can also enable the proxy of the webpack server to allow another page to be proxied through it.
+This is done by setting the `SW_PROXY_URI` to the uri of the proxied page.  
+When doing this, you will have the pages on the same uri and any request not going to one of the
+webpack assets will be proxied to the other service.
 
 ---
 
 License: WTFPL
-
 
 ```
              DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
