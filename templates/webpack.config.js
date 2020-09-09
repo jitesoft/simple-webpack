@@ -204,8 +204,6 @@ if (!process.env.WEBPACK_DEV_SERVER) {
             if (reg.test(name)) {
               ext = name.match(reg)[1];
               newName = name.replace(`.${ext}.webp`, '.low.webp');
-              ext = name.match(reg)[1];
-              newName = name.replace(`.${ext}.webp`, '.low.webp');
               compilation.assets[newName] = compilation.assets[name];
               delete compilation.assets[name];
             }
