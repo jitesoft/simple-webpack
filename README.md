@@ -117,12 +117,13 @@ are compressed with losless compression:
     * png
     * gif 
     * tif 
-    * webp 
     * svg
 
 Other images (or any files) in the `assets/images` directory will be copied to the `dist/images` directory, while these will
 be compressed and then placed in the same directory.  
 The filenames will be kept intact.
+
+Webp images will be left as is (and copied to the images dist dir), while all PNG and JPG images will get a loosless webp sibling in the directory (`[name].webp`)
 
 #### Fonts
 
