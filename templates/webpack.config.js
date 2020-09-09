@@ -29,7 +29,9 @@ const pkg = require('./package.json')
 // https://github.com/imagemin/imagemin
 const imgminPlugins = [
   'gifsicle',
-  'mozjpeg',
+  ['mozjpeg', {
+    quality: 70
+  }],
   'optipng',
   'svgo'
 ];
@@ -140,13 +142,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
       config: [{
         test: /\.(jpe?g|png)$/i,
         options: {
-          quality: 100,
-          method: 0,
-          sns: 100,
-          filter: 0,
-          lossless: true,
-          nearLossless: 100,
-          alphaQuality: 100
+          quality: 65
         }
       }]
     }),
@@ -160,8 +156,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
       },
       name: '[path][name].[ext]',
       publicPath: `${SW_PUBLIC_PATH}/images`,
-      loader: true,
-      emit: true
+      loader: true
     }),
     // This plugin allow us to extract the CSS from the javascript.
     // Without it the css would be included in the JS code, something some
