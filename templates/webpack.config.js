@@ -20,20 +20,23 @@ const ImageminWebpWebpackPlugin= require("imagemin-webp-webpack-plugin");
 const webpack = require('webpack');
 const pkg = require('./package.json')
 
-// These 'plugins' are specific for imagemin, which we use both as a plugin
-// and as a loader. So instead of writing them twice, they are declared here.
+// These 'plugins' are specific for imagemin, which we might want to
+// use both as a plugin and as a loader.
+// So instead of writing them twice, they are declared here.
 // Observe: the plugins used here are all using lossless optimization,
 // the optimization have to be specified more if you want to get more or
 // less optimized imaged, check out:
 // https://github.com/webpack-contrib/image-minimizer-webpack-plugin
 // https://github.com/imagemin/imagemin
 const imgminPlugins = [
-  'gifsicle',
-  ['mozjpeg', {
-    quality: 70
-  }],
-  'optipng',
-  'svgo'
+  [
+    'mozjpeg', {
+      quality: 70
+    }
+  ],
+  [ 'gifsicle', { } ],
+  [ 'optipng', {} ],
+  [ 'svgo', {} ]
 ];
 
 const plugins = [];
@@ -138,6 +141,11 @@ if (!process.env.WEBPACK_DEV_SERVER) {
         }
       ]
     }),
+    // This plugin will convert all jpeg and png images into webp images
+    // it does not replace them, but instead creates an alternative webp image
+    // which is a lot more suitable for webpages.
+    // The quality is set to 65 to give a good quality while it still makes
+    // most images quite a bit smaller.
     new ImageminWebpWebpackPlugin({
       config: [{
         test: /\.(jpe?g|png)$/i,
@@ -145,6 +153,21 @@ if (!process.env.WEBPACK_DEV_SERVER) {
           quality: 65
         }
       }]
+    }),
+    // You might notice here that this is almost identical to the above plugin.
+    // It is, while in this one, we use the lowest possible compression to make
+    // the image as small as possible.
+    // The produced image will have another file-end (name.ext.webp instead of
+    // name.webp) and could be used as a preload image in case the quality
+    // is too low for "real" usage.
+    new ImageminWebpWebpackPlugin({
+      config: [{
+        test: /\.(jpe?g|png)$/i,
+        options: {
+          quality: 1
+        }
+      }],
+      overrideExtension: false
     }),
     // Imagemin compresses images passed through it, yay!
     // It's important that this plugin is defined AFTER the copy webpack plugin.

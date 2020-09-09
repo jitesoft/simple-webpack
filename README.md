@@ -111,7 +111,7 @@ Subdirectories will be created, not flattened.
 #### Images
 
 This configuration uses the imagemin-webpack plugin to compress images. The following image formats
-are compressed with losless compression:
+are compressed:
 
     * jpe?g 
     * png
@@ -123,13 +123,26 @@ Other images (or any files) in the `assets/images` directory will be copied to t
 be compressed and then placed in the same directory.  
 The filenames will be kept intact.
 
-Webp images will be left as is (and copied to the images dist dir), while all PNG and JPG images will get a loosless webp sibling in the directory (`[name].webp`)
+Webp images will be left as is (and copied to the images dist dir), while all PNG and JPG
+images will get two webp siblings in the directory (`[name].webp` and `[name].[ext].webp`).  
+
+The `[name].[ext].webp` image is compressed with lowest quality and (if not good enough for you) a good choice to use
+as a pre-load image in case the other images are large, the `[name].webp` uses a higher quality which should be
+enough for most cases.
+
+##### Defaults?
+
+The image compression plugins (which uses imagemin) are mostly using the default values, with exception to jpeg and 
+webp.  
+To change the defaults for all (but webp), change the plugin configuration in the `imgminPlugins` array. Although, the defaults
+are decent for most cases.
+
+Quality for webp can be changed in the `ImageminWebpWebpackPlugin` config definition.
 
 #### Fonts
 
 Fonts are not tampered with, but they are moved to the `dist/fonts` directory in case they are placed in the `assets/fonts` dir 
 or included in JavaScript or in SCSS.
-
 
 ### Serve
 
