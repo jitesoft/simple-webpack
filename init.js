@@ -14,16 +14,17 @@ const createOrLogDir = async (p) => {
 }
 
 const touch = async (p) => {
-  return await fs.open(p, flags.O_CREAT | flags.O_RDWR);
+  const fh = await fs.open(p, flags.O_CREAT | flags.O_RDWR);
+  await fh.close();
 };
 
 const run = async () => {
-
   if (!exist(path.resolve(process.cwd(), 'package.json'))) {
     console.log('No package file exist. Creating a base package file!');
     await fs.writeFile(path.resolve(process.cwd(), 'package.json'), JSON.stringify({
       name: '@your-org/a-package',
       main: 'dist/index.js',
+      version: '1.0.0',
       dependencies: {},
       devDependencies: {},
       scripts: {}

@@ -38,6 +38,13 @@ If no package file is found, a default package file will be created.
 The intention is that the script should allow you to keep all your files intact (exception with the webpack and package files).
 If there are any issues with this, please let me know via github issues.
 
+**_observe_**
+
+This package uses the alpha versions of a few of the webpack packages to get the most recent functionality. This does
+though introduce some issues, especially with the `serve` command.  
+This also makes the package.json file update quite often, so make sure you run the init command from time to time to
+get the latest and most fresh versions of everything!
+
 **Usage**  
 
 Initialize your simple-webpack project!
@@ -70,8 +77,19 @@ But, either way, feel free to read here if you can't figure out what webpack is 
 When webpack compiles your assets, it will change all asset paths to fit the new location of the files.  
 The default public path used is `/`, that is, it expects the content of `dist` to be placed in the root web directory.  
 
-To change this, you can either use an environment variable (`PUBLIC_PATH`) or change the `PUBLIC_PATH` variable in the
+To change this, you can either use an environment variable (`SW_PUBLIC_PATH`) or change the `SW_PUBLIC_PATH` variable in the
 `webpack.config.js` file. Remember, the public path is the path _from_ the web-root.
+
+### Environment variables
+
+All configuration is done via Env variables as of now. The supported variables are the following:
+
+```dotenv
+PUBLIC_PATH        # Deprecated, same as SW_PUBLIC_PATH.
+SW_PUBLIC_PATH     # If set, changes path from '/' to your defined path.
+SW_PROXY_URI       # If set, the configuration will proxy all none-served calls to set uri. Only used with `serve`.
+SW_DEV_SERVER_PORT # Port to use for the dev-server when using `serve`. Defaults to 9000.
+```
 
 ### Compression and such
 
