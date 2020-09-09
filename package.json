@@ -1,6 +1,6 @@
 {
     "name": "@jitesoft/simple-webpack",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "bin": "init.js",
     "files": [
         "templates"
@@ -15,7 +15,17 @@
         "url": "https://github.com/jitesoft/simple-webpack"
     },
     "bugs": {
-        "url": "https://github.com/jitesoft/simple-webpack",
+        "url": "https://github.com/jitesoft/simple-webpack/issues",
         "email": "sec@jitesoft.com"
-    }
+    },
+    "description": "Initialize a simple webpack configuration including all that you might need with a single command!",
+    "homepage": "https://github.com/jitesoft/simple-webpack",
+    "keywords": [
+        "webpack",
+        "sass",
+        "imagemin",
+        "installer",
+        "config",
+        "configuration"
+    ]
 }
