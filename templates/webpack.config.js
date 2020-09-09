@@ -16,6 +16,7 @@ const TerserJSPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const ImageMinPlugin = require('imagemin-webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ImageminWebpWebpackPlugin= require("imagemin-webp-webpack-plugin");
 const webpack = require('webpack');
 const pkg = require('./package.json')
 
@@ -28,10 +29,9 @@ const pkg = require('./package.json')
 // https://github.com/imagemin/imagemin
 const imgminPlugins = [
   'gifsicle',
-  'jpegtran',
+  'mozjpeg',
   'optipng',
-  'svgo',
-  'webp'
+  'svgo'
 ];
 
 const plugins = [];
@@ -93,7 +93,8 @@ if (process.env.NODE_ENV === 'development') {
     }
   }
 
-} else {
+}
+if (!process.env.WEBPACK_DEV_SERVER) {
   extraCssLoaders.push({
     loader: MiniCssExtractPlugin.loader,
     options: {
@@ -135,17 +136,32 @@ if (process.env.NODE_ENV === 'development') {
         }
       ]
     }),
+    new ImageminWebpWebpackPlugin({
+      config: [{
+        test: /\.(jpe?g|png)$/i,
+        options: {
+          quality: 100,
+          method: 0,
+          sns: 100,
+          filter: 0,
+          lossless: true,
+          nearLossless: 100,
+          alphaQuality: 100
+        }
+      }]
+    }),
     // Imagemin compresses images passed through it, yay!
     // It's important that this plugin is defined AFTER the copy webpack plugin.
     // If it is not, it will not be able to compress the images.
     new ImageMinPlugin({
-      test: /\.(jpe?g|png|gif|tif|webp|svg)$/i,
+      test: /\.(jpe?g|png|gif|tif|svg)$/i,
       imageminOptions: {
         plugins: imgminPlugins
       },
       name: '[path][name].[ext]',
       publicPath: `${SW_PUBLIC_PATH}/images`,
-      loader: true
+      loader: true,
+      emit: true
     }),
     // This plugin allow us to extract the CSS from the javascript.
     // Without it the css would be included in the JS code, something some
