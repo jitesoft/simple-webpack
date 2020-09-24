@@ -5,52 +5,54 @@
     "devDependencies": {
         "@babel/core": "^7.11.6",
         "@jitesoft/babel-preset-main": "^2.5.2",
-        "@webpack-cli/serve": "^1.0.1-alpha.5",
         "babel-loader": "^8.1.0",
-        "copy-webpack-plugin": "^6.1.0",
+        "copy-webpack-plugin": "^6.1.1",
         "core-js": "^3.6.5",
         "cross-env": "^7.0.2",
         "css-loader": "^4.3.0",
+        "css-minimizer-webpack-plugin": "^1.1.4",
         "file-loader": "^6.1.0",
         "imagemin-gifsicle": "^7.0.0",
         "imagemin-mozjpeg": "^9.0.0",
         "imagemin-optipng": "^8.0.0",
         "imagemin-svgo": "^8.0.0",
-        "imagemin-webp-webpack-plugin": "^3.3.2",
+        "imagemin-webp-webpack-plugin": "^3.3.3",
         "imagemin-webpack": "^5.1.1",
-        "mini-css-extract-plugin": "^0.11.1",
-        "optimize-css-assets-webpack-plugin": "^5.0.4",
-        "sass": "^1.26.10",
+        "mini-css-extract-plugin": "^0.11.2",
+        "sass": "^1.26.11",
         "sass-loader": "^10.0.2",
         "style-loader": "^1.2.1",
-        "terser-webpack-plugin": "^4.1.0",
+        "terser-webpack-plugin": "^4.2.2",
         "url-loader": "^4.1.0",
-        "webpack": "^5.0.0-beta.29",
-        "webpack-cli": "^4.0.0-beta.8"
+        "webpack": "^5.0.0-rc.0",
+        "webpack-cli": "^4.0.0-rc.0",
+        "webpack-dev-server": "^3.11.0"
     },
     "scripts": {
         "watch": "cross-env NODE_ENV=development webpack --watch",
         "build": "webpack",
         "build:prod": "cross-env NODE_ENV=production webpack -p",
         "build:dev": "cross-env NODE_ENV=development webpack",
-        "serve": "cross-env NODE_ENV=development webpack-cli serve"
+        "serve": "cross-env NODE_ENV=development WEBPACK_DEV_SERVER=true webpack-cli serve"
     },
     "config": {
-        "publicPath": "",
-        "proxyUri": null,
-        "devServerPort": 9000,
-        "fonts": { "outputDir": "fonts/" },
-        "js": { "outputDir": "" },
-        "css": { "outputDir": "" },
-        "static": { "outputDir": "" },
-        "images": {
-            "outputDir": "images",
-            "plugins": [
-                ["mozjpeg", { "quality": 70 }],
-                [ "gifsicle", { } ],
-                [ "optipng", {} ],
-                [ "svgo", {} ]
-            ]
+        "simple": {
+            "publicPath": "",
+            "proxyUri": null,
+            "devServerPort": 9000,
+            "fonts": { "outputDir": "fonts/" },
+            "js": { "outputDir": "" },
+            "css": { "outputDir": "" },
+            "static": { "outputDir": "" },
+            "images": {
+                "outputDir": "images",
+                "plugins": [
+                    ["mozjpeg", { "quality": 70 }],
+                    [ "gifsicle", { } ],
+                    [ "optipng", {} ],
+                    [ "svgo", {} ]
+                ]
+            }
         }
     }
 }

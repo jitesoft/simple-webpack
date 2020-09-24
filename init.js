@@ -3,15 +3,15 @@ const fs = require('fs').promises;
 const exist = require('fs').existsSync;
 const path = require('path');
 const flags = require('fs').constants;
-
+const semver = require('semver');
 
 const createOrLogDir = async (p) => {
   try {
-    await fs.mkdir(p,  { recursive: true });
+    await fs.mkdir(p, { recursive: true });
   } catch (ex) {
     console.log(`Failed to create directory ${p}, this is probably because it already exist!`);
   }
-}
+};
 
 const touch = async (p) => {
   const fh = await fs.open(p, flags.O_CREAT | flags.O_RDWR);
@@ -34,24 +34,23 @@ const run = async () => {
 
   const pkg = JSON.parse(await fs.readFile(path.resolve(process.cwd(), 'package.json')));
   const intPkg = JSON.parse(await fs.readFile(path.resolve(__dirname, 'templates', 'package.json')));
+  pkg.config.simple = intPkg.config.simple;
 
-  pkg.config = intPkg.config;
+  console.log('Checking dependencies and devDependencies to see if there are any required dependencies missing...');
+  const add = 'Adding dependency';
+  const upd = 'Updating version of';
 
-  console.log('Checking dependencies if there are any required dependencies missing...');
-  for (const key of Object.keys(intPkg.dependencies)) {
-    if (!(key in pkg.dependencies)) {
-      console.log(`Adding dependency ${key}`);
-      pkg.dependencies[key] = intPkg.dependencies[key];
+  ['dependencies', 'devDependencies'].forEach((depType) => {
+    for (const key of Object.keys(intPkg[depType])) {
+      const curr = semver.coerce(pkg[depType][key]);
+      const want = semver.coerce(intPkg[depType][key]);
+
+      if (!(key in pkg[depType]) || semver.lt(curr, want)) {
+        console.log(`${key in pkg[depType] ? upd : add} ${key} (${depType})`);
+        pkg[depType][key] = intPkg[depType][key];
+      }
     }
-  }
-
-  console.log('Checking dev dependencies if there are any required dev dependencies missing...');
-  for (const key of Object.keys(intPkg.devDependencies)) {
-    if (!(key in pkg.devDependencies)) {
-      console.log(`Adding devDependency ${key}`);
-      pkg.devDependencies[key] = intPkg.devDependencies[key];
-    }
-  }
+  });
 
   console.log('Updating scripts...');
   for (const key of Object.keys(intPkg.scripts)) {
@@ -61,7 +60,7 @@ const run = async () => {
     }
   }
 
-  console.log('Creating directories.');
+  console.log('Creating directories...');
 
   await createOrLogDir(path.resolve(process.cwd(), 'dist'));
   await createOrLogDir(path.resolve(process.cwd(), 'src', 'js'));
@@ -70,14 +69,12 @@ const run = async () => {
   await createOrLogDir(path.resolve(process.cwd(), 'assets', 'fonts'));
   await createOrLogDir(path.resolve(process.cwd(), 'assets', 'static'));
 
-
   await touch(path.resolve(process.cwd(), 'dist', '.gitkeep'));
   await touch(path.resolve(process.cwd(), 'assets', 'images', '.gitkeep'));
   await touch(path.resolve(process.cwd(), 'assets', 'fonts', '.gitkeep'));
   await touch(path.resolve(process.cwd(), 'assets', 'static', '.gitkeep'));
 
-
-  console.log('Populating src and dist directories.');
+  console.log('Populating src and dist directories...');
   await touch(path.resolve(process.cwd(), 'src', 'style', 'index.scss'));
   await touch(path.resolve(process.cwd(), 'src', 'js', 'index.js'));
 

@@ -3,19 +3,20 @@
 const Path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizer = require('css-minimizer-webpack-plugin');
 const ImageMinPlugin = require('imagemin-webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WebpPlugin = require('imagemin-webp-webpack-plugin');
 const webpack = require('webpack');
 const pkg = require('./package.json');
 
+const configuration = pkg.config.simple;
 // All configuration that a user is intended to do themselves, that is, you
 // are loaded here from env variables, or if not defined there, the package file.
 // Environment variables that can be used!
-const publicPath = process.env.SW_PUBLIC_PATH || pkg.config.publicPath;
-const proxyUri = process.env.PROXY_URI || pkg.config.proxyUri;
-const devServerPort = process.env.SW_DEV_SERVER_PORT || pkg.config.devServerPort;
+const publicPath = process.env.SW_PUBLIC_PATH || configuration.publicPath;
+const proxyUri = process.env.PROXY_URI || configuration.proxyUri;
+const devServerPort = process.env.SW_DEV_SERVER_PORT || configuration.devServerPort;
 
 // The following lists and objects are created here because
 // they are used both in the development and production versions, but with
@@ -64,7 +65,7 @@ const webpL = new WebpPlugin({
 });
 
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.WEBPACK_DEV_SERVER) {
   plugins.push(
     new webpack.HotModuleReplacementPlugin(),
     webpH,
@@ -72,17 +73,17 @@ if (process.env.NODE_ENV === 'development') {
   );
 
   devServer = {
-    // For full options and more in depth description of the devserver, check
+    // For full options and more in depth description of the dev-server, check
     // out the following link: https://webpack.js.org/configuration/dev-server/
-    contentBase: Path.resolve(__dirname, 'dist'),
-    contentBasePublicPath: `${publicPath}/`,
-    publicPath: `${publicPath}/`,
+    contentBase: Path.join(__dirname, 'dist'),
+    contentBasePublicPath: `dist`,
+    publicPath: `${publicPath}/dist`,
     compress: true,
-    writeToDisk: true,
     port: devServerPort,
     hot: true,
-    stats: 'none', //'minimal',
+    stats: 'minimal',
     injectClient: true,
+    injectHot: true,
     overlay: {
       errors: true,
       warnings: false
@@ -98,14 +99,14 @@ if (process.env.NODE_ENV === 'development') {
     onListening: function(server) {
       const port = server.listeningApp.address().port;
       console.info('********************************************************************************');
-      console.info('*          @jitesoft/simple-webpack (and WebPack) presents!                    *');
-      console.info(`*          ${pkg.name} - ${pkg.version}                                        *`);
-      console.info('*                                                                              *');
-      console.info(`*          Listening on port: ${port}                                          *`);
-      console.info('*          To access your assets, open a browser and go to                     *');
-      console.info(`*          http://127.0.0.1:${port}                                            *`);
-      console.info('*                                                                              *');
-      console.info(`*          Have fun!                                                           *`);
+      console.info('           @jitesoft/simple-webpack (and WebPack) presents!                     ');
+      console.info(`           ${pkg.name} - ${pkg.version}                                         `);
+      console.info('                                                                                ');
+      console.info(`           Listening on port: ${port}                                           `);
+      console.info('           To access your assets, open a browser and go to                      ');
+      console.info(`           http://127.0.0.1:${port}                                             `);
+      console.info('                                                                                ');
+      console.info(`           Have fun!                                                            `);
       console.info('********************************************************************************');
     }
   };
@@ -117,16 +118,16 @@ if (process.env.NODE_ENV === 'development') {
       target: proxyUri
     }
   }
-
 }
+
 if (!process.env.WEBPACK_DEV_SERVER) {
   extraCssLoaders.push({
     loader: MiniCssExtractPlugin.loader,
     options: {
       outputPath: '',
-      publicPath: `${publicPath}/${pkg.config.css.outputDir}`,
+      publicPath: `${publicPath}/${configuration.css.outputDir}`,
       name: '[name].[ext]',
-      hmr: devServer.hot || false
+      hmr: false
     }
   });
 
@@ -137,7 +138,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
       patterns: [
         {
           from: 'assets/images/',
-          to: pkg.config.images.outputDir,
+          to: configuration.images.outputDir,
           noErrorOnMissing: true,
           globOptions: {
             dot: false
@@ -145,7 +146,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
         },
         {
           from: 'assets/static/',
-          to: pkg.config.static.outputDir,
+          to: configuration.static.outputDir,
           noErrorOnMissing: true,
           globOptions: {
             dot: false
@@ -153,7 +154,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
         },
         {
           from: 'assets/fonts/',
-          to: pkg.config.fonts.outputDir,
+          to: configuration.fonts.outputDir,
           noErrorOnMissing: true,
           globOptions: {
             dot: false
@@ -174,10 +175,10 @@ if (!process.env.WEBPACK_DEV_SERVER) {
         // Check out the following links for more specific information.
         // https://github.com/webpack-contrib/image-minimizer-webpack-plugin
         // https://github.com/imagemin/imagemin
-        plugins: pkg.config.images.plugins
+        plugins: configuration.images.plugins
       },
       name: '[path][name].[ext]',
-      publicPath: `${publicPath}/${pkg.config.images.outputDir}`,
+      publicPath: `${publicPath}/${configuration.images.outputDir}`,
       loader: true
     }),
     // This plugin allow us to extract the CSS from the javascript.
@@ -186,7 +187,7 @@ if (!process.env.WEBPACK_DEV_SERVER) {
     new MiniCssExtractPlugin({
       filename: 'index.css',
       chunkFilename: 'chunks/[id].css',
-      publicPath: `${publicPath}/${pkg.config.css.outputDir}`
+      publicPath: `${publicPath}/${configuration.css.outputDir}`
     })
   );
 }
@@ -198,7 +199,18 @@ module.exports = {
   // minifier for the JS and CSS.
   // So the minimizer option gets two minification plugins, one for js one for css.
   optimization: (process.env.NODE_ENV === 'production' ? {
-    minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})]
+    minimizer: [
+      new TerserJSPlugin({}),
+      new CssMinimizer({
+        parallel: true, // Change to false or a set number of threads if it uses too much.
+        sourceMaps: true,
+        minimizerOptions: [
+          'default', {
+            discardComments: { removeAll: true }
+          }
+        ]
+      })
+    ]
   } : { }),
   // If the NODE_ENV is not set, we default to production.
   mode: process.env.NODE_ENV ? process.env.NODE_ENV : 'production',
@@ -266,9 +278,9 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              outputPath: pkg.config.fonts.outputDir,
+              outputPath: configuration.fonts.outputDir,
               name: '[name].[ext]',
-              publicPath: `${publicPath}/${pkg.config.fonts.outputDir}`
+              publicPath: `${publicPath}/${configuration.fonts.outputDir}`
             }
           }
         ]
@@ -316,9 +328,9 @@ module.exports = {
             // Most image types will be replaced by compressed images (imagemin plugin).
             loader: 'file-loader',
             options: {
-              outputPath: pkg.config.images.outputDir,
+              outputPath: configuration.images.outputDir,
               name: '[name].[ext]',
-              publicPath: `${publicPath}/${pkg.config.images.outputDir}`,
+              publicPath: `${publicPath}/${configuration.images.outputDir}`,
             }
           }
         ]

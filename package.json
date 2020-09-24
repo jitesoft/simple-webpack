@@ -1,8 +1,8 @@
 {
     "name": "@jitesoft/simple-webpack",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "type": "",
-    "license" : "SEE LICENSE IN LICENSE",
+    "license": "SEE LICENSE IN LICENSE",
     "bin": "init.js",
     "files": [
         "templates"
@@ -16,6 +16,9 @@
     "repository": {
         "type": "git",
         "url": "https://github.com/jitesoft/simple-webpack.git"
+    },
+    "dependencies": {
+        "semver": "^7.3.2"
     },
     "bugs": {
         "url": "https://github.com/jitesoft/simple-webpack/issues",
