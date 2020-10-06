@@ -34,25 +34,5 @@
         "build:prod": "cross-env NODE_ENV=production webpack --config webpack.config.js",
         "build:dev": "cross-env NODE_ENV=development webpack --config webpack.config.js ",
         "serve": "cross-env NODE_ENV=development WEBPACK_DEV_SERVER=true webpack-cli serve --config webpack.config.js "
-    },
-    "config": {
-        "simple": {
-            "publicPath": "",
-            "proxyUri": null,
-            "devServerPort": 9000,
-            "fonts": { "outputDir": "fonts/" },
-            "js": { "outputDir": "" },
-            "css": { "outputDir": "" },
-            "static": { "outputDir": "" },
-            "images": {
-                "outputDir": "images",
-                "plugins": [
-                    ["mozjpeg", { "quality": 70 }],
-                    [ "gifsicle", { } ],
-                    [ "optipng", {} ],
-                    [ "svgo", {} ]
-                ]
-            }
-        }
     }
 }

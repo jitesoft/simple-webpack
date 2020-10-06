@@ -34,8 +34,6 @@ const run = async () => {
 
   const pkg = JSON.parse(await fs.readFile(path.resolve(process.cwd(), 'package.json')));
   const intPkg = JSON.parse(await fs.readFile(path.resolve(__dirname, 'templates', 'package.json')));
-  pkg.config = pkg.config ? pkg.config : {};
-  pkg.config.simple = intPkg.config.simple;
 
   console.log('Checking dependencies and devDependencies to see if there are any required dependencies missing...');
   const add = 'Adding dependency';
@@ -83,6 +81,10 @@ const run = async () => {
     console.log(`Failed to create ${path.resolve(process.cwd(), 'src', 'index.js')}, file already exist.`);
   } else {
     await fs.copyFile(path.resolve(__dirname, 'templates', 'index.js'), path.resolve(process.cwd(), 'src', 'index.js'));
+  }
+
+  if (!exist(path.resolve(process.cwd(), '.simple'))) {
+    await fs.copyFile(path.resolve(__dirname, 'templates', '.simple'), path.resolve(process.cwd(), '.simple'));
   }
 
   console.log('Copying configuration files...');

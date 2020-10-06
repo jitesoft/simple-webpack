@@ -9,8 +9,32 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WebpPlugin = require('imagemin-webp-webpack-plugin');
 const webpack = require('webpack');
 const pkg = require('./package.json');
+const fs = require('fs');
 
-const configuration = pkg.config.simple;
+let   configuration = {
+  'publicPath': '',
+  'proxyUri': null,
+  'devServerPort': 9000,
+  'fonts': { 'outputDir': 'fonts/' },
+  'js': { 'outputDir': '' },
+  'css': { 'outputDir': '' },
+  'static': { 'outputDir': '' },
+  'images': {
+    'outputDir': 'images',
+    'plugins': [
+      ['mozjpeg', { 'quality': 70 }],
+      ['gifsicle', {}],
+      ['optipng', {}],
+      ['svgo', {}]]
+  }
+};
+try {
+  configuration = JSON.parse(fs.readFileSync(Path.resolve(__dirname, '.simple'), 'utf8'));
+} catch (e) {
+  console.log(e);
+  console.info('Failed to read configuration file (.simple in root dir), skipping.');
+}
+
 // All configuration that a user is intended to do themselves, that is, you
 // are loaded here from env variables, or if not defined there, the package file.
 // Environment variables that can be used!
@@ -64,7 +88,6 @@ const webpL = new WebpPlugin({
   overrideExtension: false
 });
 
-
 if (process.env.WEBPACK_DEV_SERVER) {
   plugins.push(
     new webpack.HotModuleReplacementPlugin(),
@@ -96,7 +119,7 @@ if (process.env.WEBPACK_DEV_SERVER) {
       '.local',
       'localhost'
     ],
-    onListening: function(server) {
+    onListening: function (server) {
       const port = server.listeningApp.address().port;
       console.info('********************************************************************************');
       console.info('           @jitesoft/simple-webpack (and WebPack) presents!                     ');
@@ -116,7 +139,7 @@ if (process.env.WEBPACK_DEV_SERVER) {
     devServer.proxy = {
       context: () => true,
       target: proxyUri
-    }
+    };
   }
 }
 
@@ -213,7 +236,7 @@ module.exports = {
         }
       })
     ]
-  } : { }),
+  } : {}),
   // If the NODE_ENV is not set, we default to production.
   mode: process.env.NODE_ENV ? process.env.NODE_ENV : 'production',
   // The target for this config is WEB.
@@ -246,12 +269,12 @@ module.exports = {
     // of the output file by ourselves, this little plugin is used
     // to rename the image from `[name].[ext].webp` to `[name].low.webp`.
     new (class {
-      apply(compiler) {
+      apply (compiler) {
         compiler.hooks.emit.tap('RenamePlugin', (compilation) => {
           const names = Object.keys(compilation.assets);
-          const reg = /.*[.](jpe?g|png)[.]webp$/
+          const reg = /.*[.](jpe?g|png)[.]webp$/;
           let ext, name, newName;
-          for (let i = names.length; i-->0;) {
+          for (let i = names.length; i-- > 0;) {
             name = names[i];
             if (reg.test(name)) {
               ext = name.match(reg)[1];

@@ -1,0 +1,18 @@
+{
+    "publicPath": "",
+    "proxyUri": null,
+    "devServerPort": 9000,
+    "fonts": { "outputDir": "fonts/" },
+    "js": { "outputDir": "" },
+    "css": { "outputDir": "" },
+    "static": { "outputDir": "" },
+    "images": {
+        "outputDir": "images",
+        "plugins": [
+            ["mozjpeg", { "quality": 70 }],
+            [ "gifsicle", {} ],
+            [ "optipng", {} ],
+            [ "svgo", {} ]
+        ]
+    }
+}
