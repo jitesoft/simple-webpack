@@ -15,6 +15,7 @@ The directory structure it creates looks like this:
 ```
 // pwd
 webpack.config.js
+.simple
 /assets
   /fonts
     /.gitkeep
@@ -40,7 +41,7 @@ If there are any issues with this, please let me know via github issues.
 
 **_observe_**
 
-This package uses the alpha versions of a few of the webpack packages to get the most recent functionality. This does
+This package uses the pre-release versions of a few of the packages to get the most recent functionality. This does
 though introduce some issues, especially with the `serve` command.  
 This also makes the package.json file update quite often, so make sure you run the init command from time to time to
 get the latest and most fresh versions of everything!
@@ -80,7 +81,40 @@ The default public path used is `/`, that is, it expects the content of `dist` t
 To change this, you can either use an environment variable (`SW_PUBLIC_PATH`) or change the `SW_PUBLIC_PATH` variable in the
 `webpack.config.js` file. Remember, the public path is the path _from_ the web-root.
 
-### Environment variables
+### Configuration
+
+There are two ways to configure the behaviour. You can use the pre-created `.simple` configuration (json) to
+change any of the variables inside it or you can use `ENV` variables.
+
+#### .simple
+
+This is a simple config!  
+Defaults looks like the following:
+
+```
+{
+    "publicPath": "",
+    "proxyUri": null,
+    "devServerPort": 9000,
+    "fonts": { "outputDir": "fonts/" },
+    "js": { "outputDir": "" },
+    "css": { "outputDir": "" },
+    "static": { "outputDir": "" },
+    "images": {
+        "outputDir": "images",
+        "plugins": [
+            ["mozjpeg", { "quality": 70 }],
+            [ "gifsicle", {} ],
+            [ "optipng", {} ],
+            [ "svgo", {} ]
+        ]
+    }
+}
+```
+
+All json and will be loaded at the start of the webpack config incase it exist.
+
+#### Environment variables
 
 All configuration is done via Env variables as of now. The supported variables are the following:
 
