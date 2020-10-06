@@ -34,6 +34,7 @@ const run = async () => {
 
   const pkg = JSON.parse(await fs.readFile(path.resolve(process.cwd(), 'package.json')));
   const intPkg = JSON.parse(await fs.readFile(path.resolve(__dirname, 'templates', 'package.json')));
+  pkg.config = pkg.config ? pkg.config : {};
   pkg.config.simple = intPkg.config.simple;
 
   console.log('Checking dependencies and devDependencies to see if there are any required dependencies missing...');

@@ -203,12 +203,14 @@ module.exports = {
       new TerserJSPlugin({}),
       new CssMinimizer({
         parallel: true, // Change to false or a set number of threads if it uses too much.
-        sourceMaps: true,
-        minimizerOptions: [
-          'default', {
-            discardComments: { removeAll: true }
-          }
-        ]
+        sourceMap: true,
+        minimizerOptions: {
+          preset: [
+            'default', {
+              discardComments: { removeAll: true }
+            }
+          ]
+        }
       })
     ]
   } : { }),
