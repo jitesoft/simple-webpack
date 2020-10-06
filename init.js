@@ -71,7 +71,10 @@ const run = async () => {
   await touch(path.resolve(process.cwd(), 'dist', '.gitkeep'));
   await touch(path.resolve(process.cwd(), 'assets', 'images', '.gitkeep'));
   await touch(path.resolve(process.cwd(), 'assets', 'fonts', '.gitkeep'));
-  await touch(path.resolve(process.cwd(), 'assets', 'static', '.gitkeep'));
+  if (!exist(path.resolve(process.cwd(), 'assets', 'static', 'index.html'))) {
+    await fs.copyFile(path.resolve(__dirname, 'templates', 'index.html'), path.resolve(process.cwd(), 'assets', 'static', 'index.html'));
+  }
+  await touch(path.resolve(process.cwd(), 'assets', 'static', 'index.html'));
 
   console.log('Populating src and dist directories...');
   await touch(path.resolve(process.cwd(), 'src', 'style', 'index.scss'));

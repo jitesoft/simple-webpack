@@ -11,7 +11,7 @@ const webpack = require('webpack');
 const pkg = require('./package.json');
 const fs = require('fs');
 
-let   configuration = {
+let configuration = {
   'publicPath': '',
   'proxyUri': null,
   'devServerPort': 9000,
@@ -91,16 +91,14 @@ const webpL = new WebpPlugin({
 if (process.env.WEBPACK_DEV_SERVER) {
   plugins.push(
     new webpack.HotModuleReplacementPlugin(),
-    webpH,
-    webpL
   );
 
   devServer = {
     // For full options and more in depth description of the dev-server, check
     // out the following link: https://webpack.js.org/configuration/dev-server/
     contentBase: Path.join(__dirname, 'dist'),
-    contentBasePublicPath: `dist`,
-    publicPath: `${publicPath}/dist`,
+    contentBasePublicPath: ``,
+    publicPath: `${publicPath}`,
     compress: true,
     port: devServerPort,
     hot: true,
@@ -143,77 +141,65 @@ if (process.env.WEBPACK_DEV_SERVER) {
   }
 }
 
-if (!process.env.WEBPACK_DEV_SERVER) {
-  extraCssLoaders.push({
-    loader: MiniCssExtractPlugin.loader,
-    options: {
-      outputPath: '',
-      publicPath: `${publicPath}/${configuration.css.outputDir}`,
-      name: '[name].[ext]',
-      hmr: false
-    }
-  });
-
-  plugins.push(
-    // CopyWebpackPlugin basically just copies the files in the directories defined.
-    // Some plugins do although pick those up, allowing us to for example optimize images!
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: 'assets/images/',
-          to: configuration.images.outputDir,
-          noErrorOnMissing: true,
-          globOptions: {
-            dot: false
-          }
-        },
-        {
-          from: 'assets/static/',
-          to: configuration.static.outputDir,
-          noErrorOnMissing: true,
-          globOptions: {
-            dot: false
-          }
-        },
-        {
-          from: 'assets/fonts/',
-          to: configuration.fonts.outputDir,
-          noErrorOnMissing: true,
-          globOptions: {
-            dot: false
-          }
+plugins.push(
+  // CopyWebpackPlugin basically just copies the files in the directories defined.
+  // Some plugins do although pick those up, allowing us to for example optimize images!
+  new CopyWebpackPlugin({
+    patterns: [
+      {
+        from: 'assets/images/',
+        to: configuration.images.outputDir,
+        noErrorOnMissing: true,
+        globOptions: {
+          dot: false
         }
-      ]
-    }),
-    webpH,
-    webpL,
-    // Imagemin compresses images passed through it, yay!
-    // It's important that this plugin is defined AFTER the copy webpack plugin.
-    // If it is not, it will not be able to compress the images.
-    new ImageMinPlugin({
-      test: /\.(jpe?g|png|gif|tif|svg)$/i,
-      imageminOptions: {
-        // All the imagemin plugins are loaded from an array in the package.json config
-        // property. You can change the plugin options from there if wanted.
-        // Check out the following links for more specific information.
-        // https://github.com/webpack-contrib/image-minimizer-webpack-plugin
-        // https://github.com/imagemin/imagemin
-        plugins: configuration.images.plugins
       },
-      name: '[path][name].[ext]',
-      publicPath: `${publicPath}/${configuration.images.outputDir}`,
-      loader: true
-    }),
-    // This plugin allow us to extract the CSS from the javascript.
-    // Without it the css would be included in the JS code, something some
-    // people might get a bit confused by!
-    new MiniCssExtractPlugin({
-      filename: 'index.css',
-      chunkFilename: 'chunks/[id].css',
-      publicPath: `${publicPath}/${configuration.css.outputDir}`
-    })
-  );
-}
+      {
+        from: 'assets/static/',
+        to: configuration.static.outputDir,
+        noErrorOnMissing: true,
+        globOptions: {
+          dot: false
+        }
+      },
+      {
+        from: 'assets/fonts/',
+        to: configuration.fonts.outputDir,
+        noErrorOnMissing: true,
+        globOptions: {
+          dot: false
+        }
+      }
+    ]
+  }),
+  webpH,
+  webpL,
+  // Imagemin compresses images passed through it, yay!
+  // It's important that this plugin is defined AFTER the copy webpack plugin.
+  // If it is not, it will not be able to compress the images.
+  new ImageMinPlugin({
+    test: /\.(jpe?g|png|gif|tif|svg)$/i,
+    imageminOptions: {
+      // All the imagemin plugins are loaded from an array in the package.json config
+      // property. You can change the plugin options from there if wanted.
+      // Check out the following links for more specific information.
+      // https://github.com/webpack-contrib/image-minimizer-webpack-plugin
+      // https://github.com/imagemin/imagemin
+      plugins: configuration.images.plugins
+    },
+    name: '[path][name].[ext]',
+    publicPath: `${publicPath}/${configuration.images.outputDir}`,
+    loader: true
+  }),
+  // This plugin allow us to extract the CSS from the javascript.
+  // Without it the css would be included in the JS code, something some
+  // people might get a bit confused by
+  new MiniCssExtractPlugin({
+    filename: 'index.css',
+    chunkFilename: 'chunks/[id].css',
+    publicPath: `${publicPath}/${configuration.css.outputDir}`
+  })
+);
 
 // So... Here comes the "real" configuration. All the other stuff is only for
 // plugins and such. This is the actual webpack config!
@@ -333,6 +319,15 @@ module.exports = {
         test: /\.(sass|scss|css)$/i,
         use: [
           ...extraCssLoaders,
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              outputPath: '',
+              publicPath: `${publicPath}/${configuration.css.outputDir}`,
+              name: '[name].[ext]',
+              hmr: !!process.env.WEBPACK_DEV_SERVER
+            }
+          },
           'css-loader',
           {
             loader: 'sass-loader',
