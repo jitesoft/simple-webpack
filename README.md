@@ -13,25 +13,24 @@ and scripts.
 The directory structure it creates looks like this:
 
 ```
-// pwd
-webpack.config.js
-.simple
-/assets
-  /fonts
-    /.gitkeep
-  /images
-    /.gitkeep
-  /static
-    /.gitkeep
-/dist
-  /.gitkeep
-/src
-  /.babelrc
-  /index.js
-  /js
-    /index.js
-  /style
-    /index.scss
+your-package/
+├─ assets/
+│  ├─ fonts/
+│  │  ├─ .gitkeep
+│  ├─ images/
+│  │  ├─ .gitkeep
+│  ├─ static/
+│  │  ├─ index.html
+├─ dist/
+│  ├─ .gitkeep
+├─ src/
+│  ├─ style/
+│  │  ├─ index.scss
+│  ├─ js/
+│  │  ├─ index.js
+│  ├─ index.js
+├─ webpack.config.json
+├─ .simple
 ```
 
 If no package file is found, a default package file will be created.
@@ -66,6 +65,9 @@ npm i && npm run build:dev  // dev either way!
 npm i && npm run watch      // watches your files and compiles them (dev only)
 npm i && npm run serve      // Serve a http client on 0.0.0.0:9000 
 ````
+
+By default, an index.html file exists in the `assets/static` directory, it includes the js and css files by default
+and can be changed as wanted to fit your use case.
 
 ## More details
 
