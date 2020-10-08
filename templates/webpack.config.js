@@ -4,7 +4,7 @@ const Path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
 const CssMinimizer = require('css-minimizer-webpack-plugin');
-const ImageMinPlugin = require('imagemin-webpack');
+const ImageMinPlugin = require('image-minimizer-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WebpPlugin = require('imagemin-webp-webpack-plugin');
 const webpack = require('webpack');
@@ -124,14 +124,6 @@ plugins.push(
   new CopyWebpackPlugin({
     patterns: [
       {
-        from: 'assets/images/',
-        to: configuration.images.outputDir,
-        noErrorOnMissing: true,
-        globOptions: {
-          dot: false
-        }
-      },
-      {
         from: 'assets/static/',
         to: configuration.static.outputDir,
         noErrorOnMissing: true,
@@ -182,7 +174,7 @@ plugins.push(
   // If it is not, it will not be able to compress the images.
   new ImageMinPlugin({
     test: /\.(jpe?g|png|gif|tif|svg)$/i,
-    imageminOptions: {
+    minimizerOptions: {
       // All the imagemin plugins are loaded from an array in the package.json config
       // property. You can change the plugin options from there if wanted.
       // Check out the following links for more specific information.
@@ -190,8 +182,8 @@ plugins.push(
       // https://github.com/imagemin/imagemin
       plugins: configuration.images.plugins
     },
-    name: '[path][name].[ext]',
-    publicPath: `${configuration.publicPath}/${configuration.images.outputDir}`,
+    include: 'assets/images',
+    filename: '[path][name].[ext]',
     loader: true
   }),
   // This plugin allow us to extract the CSS from the javascript.
