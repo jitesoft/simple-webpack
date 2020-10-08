@@ -1,6 +1,6 @@
 {
     "name": "@jitesoft/simple-webpack",
-    "version": "1.9.0",
+    "version": "1.9.1",
     "type": "",
     "license": "SEE LICENSE IN LICENSE",
     "bin": "init.js",
