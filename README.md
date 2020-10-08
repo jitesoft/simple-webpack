@@ -118,13 +118,16 @@ All json and will be loaded at the start of the webpack config incase it exist.
 
 #### Environment variables
 
-All configuration is done via Env variables as of now. The supported variables are the following:
+Environment variables overrides the configuration file and are defined as `SW_CONFIG_SEPERATED_WITH_UNDERSCORE`, sub-objects
+are separated with __ (double underscore). arrays are not currently supported (making for example the `images.plugins` configuration 
+not possible to change via env variables yet).
 
+Examples:
+ 
 ```dotenv
-PUBLIC_PATH        # Deprecated, same as SW_PUBLIC_PATH.
-SW_PUBLIC_PATH     # If set, changes path from '/' to your defined path.
-SW_PROXY_URI       # If set, the configuration will proxy all none-served calls to set uri. Only used with `serve`.
-SW_DEV_SERVER_PORT # Port to use for the dev-server when using `serve`. Defaults to 9000.
+SW_PUBLIC_PATH     
+SW_PROXY_URI       
+SW_IMAGES__OUTPUT_DIR 
 ```
 
 ### Compression and such
