@@ -3,7 +3,7 @@ const fs = require('fs').promises;
 const exist = require('fs').existsSync;
 const path = require('path');
 const flags = require('fs').constants;
-const semver = require('semver');
+const semver = require('./semver');
 
 const createOrLogDir = async (p) => {
   try {
@@ -41,10 +41,7 @@ const run = async () => {
 
   ['dependencies', 'devDependencies'].forEach((depType) => {
     for (const key of Object.keys(intPkg[depType])) {
-      const curr = semver.coerce(pkg[depType][key]);
-      const want = semver.coerce(intPkg[depType][key]);
-
-      if (!(key in pkg[depType]) || semver.lt(curr, want)) {
+      if (!(key in pkg[depType]) || semver.diff(pkg[depType][key], intPkg[depType][key]) < 0) {
         console.log(`${key in pkg[depType] ? upd : add} ${key} (${depType})`);
         pkg[depType][key] = intPkg[depType][key];
       }
