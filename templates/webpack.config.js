@@ -11,6 +11,8 @@ const webpack = require('webpack');
 const pkg = require('./package.json');
 const fs = require('fs');
 
+const envOr = (key, def) => process.env[key] !== undefined ? process.env[key] : def;
+
 let configuration = {
   'publicPath': '',
   'proxyUri': null,
@@ -35,12 +37,16 @@ try {
   console.info('Failed to read configuration file (.simple in root dir), skipping.');
 }
 
-// All configuration that a user is intended to do themselves, that is, you
-// are loaded here from env variables, or if not defined there, the package file.
-// Environment variables that can be used!
-const publicPath = process.env.SW_PUBLIC_PATH || configuration.publicPath;
-const proxyUri = process.env.PROXY_URI || configuration.proxyUri;
-const devServerPort = process.env.SW_DEV_SERVER_PORT || configuration.devServerPort;
+// Override all config via env variables if set.
+// The whole configuration loading should be moved into some other package later on.
+configuration.publicPath = envOr('SW_PUBLIC_PATH', configuration.publicPath);
+configuration.proxyUri = envOr('SW_PROXY_URI', configuration.proxyUri);
+configuration.devServerPort = envOr('SW_DEV_SERVER_PORT', configuration.devServerPort);
+configuration.fonts.outputDir = envOr('SW_FONTS__OUTPUT_DIR', configuration.fonts.outputDir);
+configuration.js.outputDir = envOr('SW_JS__OUTPUT_DIR', configuration.js.outputDir);
+configuration.css.outputDir = envOr('SW_CSS__OUTPUT_DIR', configuration.css.outputDir);
+configuration.static.outputDir = envOr('SW_STATIC__OUTPUT_DIR', configuration.static.outputDir);
+configuration.images.outputDir = envOr('SW_IMAGES__OUTPUT_DIR', configuration.images.outputDir);
 
 // The following lists and objects are created here because
 // they are used both in the development and production versions, but with
@@ -59,35 +65,6 @@ let devServer = {};
 // and for them to run both in dev and prod, they are defined here as variables
 // and then included where they are needed.
 
-// This plugin will convert all jpeg and png images into webp images
-// it does not replace them, but instead creates an alternative webp image
-// which is a lot more suitable for webpages.
-// The quality is set to 65 to give a good quality while it still makes
-// most images quite a bit smaller.
-const webpH = new WebpPlugin({
-  config: [{
-    test: /\.(jpe?g|png)$/i,
-    options: {
-      quality: 65
-    }
-  }]
-});
-// You might notice here that this is almost identical to the above plugin.
-// It is, while in this one, we use the lowest possible compression to make
-// the image as small as possible.
-// The produced image will have another file-end (name.ext.webp instead of
-// name.webp) and could be used as a preload image in case the quality
-// is too low for "real" usage.
-const webpL = new WebpPlugin({
-  config: [{
-    test: /\.(jpe?g|png)$/i,
-    options: {
-      quality: 1
-    }
-  }],
-  overrideExtension: false
-});
-
 if (process.env.WEBPACK_DEV_SERVER) {
   plugins.push(
     new webpack.HotModuleReplacementPlugin(),
@@ -98,9 +75,9 @@ if (process.env.WEBPACK_DEV_SERVER) {
     // out the following link: https://webpack.js.org/configuration/dev-server/
     contentBase: Path.join(__dirname, 'dist'),
     contentBasePublicPath: ``,
-    publicPath: `${publicPath}`,
+    publicPath: configuration.publicPath,
     compress: true,
-    port: devServerPort,
+    port: configuration.devServerPort,
     hot: true,
     stats: 'minimal',
     injectClient: true,
@@ -132,11 +109,11 @@ if (process.env.WEBPACK_DEV_SERVER) {
     }
   };
 
-  if (proxyUri !== null) {
+  if (configuration.proxyUri !== null) {
     devServer.index = '';
     devServer.proxy = {
       context: () => true,
-      target: proxyUri
+      target: configuration.proxyUri
     };
   }
 }
@@ -172,8 +149,34 @@ plugins.push(
       }
     ]
   }),
-  webpH,
-  webpL,
+  // This plugin will convert all jpeg and png images into webp images
+  // it does not replace them, but instead creates an alternative webp image
+  // which is a lot more suitable for webpages.
+  // The quality is set to 65 to give a good quality while it still makes
+  // most images quite a bit smaller.
+  new WebpPlugin({
+    config: [{
+      test: /\.(jpe?g|png)$/i,
+      options: {
+        quality: 65
+      }
+    }]
+  }),
+  // You might notice here that this is almost identical to the above plugin.
+  // It is, while in this one, we use the lowest possible compression to make
+  // the image as small as possible.
+  // The produced image will have another file-end (name.ext.webp instead of
+  // name.webp) and could be used as a preload image in case the quality
+  // is too low for "real" usage.
+  new WebpPlugin({
+    config: [{
+      test: /\.(jpe?g|png)$/i,
+      options: {
+        quality: 1
+      }
+    }],
+    overrideExtension: false
+  }),
   // Imagemin compresses images passed through it, yay!
   // It's important that this plugin is defined AFTER the copy webpack plugin.
   // If it is not, it will not be able to compress the images.
@@ -188,16 +191,16 @@ plugins.push(
       plugins: configuration.images.plugins
     },
     name: '[path][name].[ext]',
-    publicPath: `${publicPath}/${configuration.images.outputDir}`,
+    publicPath: `${configuration.publicPath}/${configuration.images.outputDir}`,
     loader: true
   }),
   // This plugin allow us to extract the CSS from the javascript.
   // Without it the css would be included in the JS code, something some
-  // people might get a bit confused by
+  // people might get a bit confused by.
   new MiniCssExtractPlugin({
     filename: 'index.css',
     chunkFilename: 'chunks/[id].css',
-    publicPath: `${publicPath}/${configuration.css.outputDir}`
+    publicPath: `${configuration.publicPath}/${configuration.css.outputDir}`
   })
 );
 
@@ -291,7 +294,7 @@ module.exports = {
             options: {
               outputPath: configuration.fonts.outputDir,
               name: '[name].[ext]',
-              publicPath: `${publicPath}/${configuration.fonts.outputDir}`
+              publicPath: `${configuration.publicPath}/${configuration.fonts.outputDir}`
             }
           }
         ]
@@ -323,7 +326,7 @@ module.exports = {
             loader: MiniCssExtractPlugin.loader,
             options: {
               outputPath: '',
-              publicPath: `${publicPath}/${configuration.css.outputDir}`,
+              publicPath: `${configuration.publicPath}/${configuration.css.outputDir}`,
               name: '[name].[ext]',
               hmr: !!process.env.WEBPACK_DEV_SERVER
             }
@@ -350,7 +353,7 @@ module.exports = {
             options: {
               outputPath: configuration.images.outputDir,
               name: '[name].[ext]',
-              publicPath: `${publicPath}/${configuration.images.outputDir}`,
+              publicPath: `${configuration.publicPath}/${configuration.images.outputDir}`,
             }
           }
         ]
