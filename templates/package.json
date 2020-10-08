@@ -12,12 +12,12 @@
         "css-loader": "^4.3.0",
         "css-minimizer-webpack-plugin": "^1.1.5",
         "file-loader": "^6.1.0",
+        "image-minimizer-webpack-plugin": "^1.0.0",
         "imagemin-gifsicle": "^7.0.0",
         "imagemin-mozjpeg": "^9.0.0",
         "imagemin-optipng": "^8.0.0",
         "imagemin-svgo": "^8.0.0",
         "imagemin-webp-webpack-plugin": "^3.3.3",
-        "image-minimizer-webpack-plugin": "^1.0.0",
         "mini-css-extract-plugin": "^0.12.0",
         "sass": "^1.27.0",
         "sass-loader": "^10.0.2",
@@ -25,7 +25,8 @@
         "terser-webpack-plugin": "^4.2.3",
         "url-loader": "^4.1.0",
         "webpack": "^5.0.0-rc.4",
-        "webpack-cli": "^4.0.0-rc.1"
+        "webpack-cli": "^4.0.0-rc.1",
+        "webpack-dev-server": "^3.11.0"
     },
     "scripts": {
         "watch": "cross-env NODE_ENV=development webpack --config webpack.config.js --watch",
