@@ -17,9 +17,6 @@
         "type": "git",
         "url": "https://github.com/jitesoft/simple-webpack.git"
     },
-    "dependencies": {
-        "semver": "^7.3.2"
-    },
     "bugs": {
         "url": "https://github.com/jitesoft/simple-webpack/issues",
         "email": "sec@jitesoft.com"
