@@ -38,13 +38,6 @@ If no package file is found, a default package file will be created.
 The intention is that the script should allow you to keep all your files intact (exception with the webpack and package files).
 If there are any issues with this, please let me know via github issues.
 
-**_observe_**
-
-This package uses the pre-release versions of a few of the packages to get the most recent functionality. This does
-though introduce some issues, especially with the `serve` command.  
-This also makes the package.json file update quite often, so make sure you run the init command from time to time to
-get the latest and most fresh versions of everything!
-
 **Usage**  
 
 Initialize your simple-webpack project!
@@ -114,7 +107,7 @@ Defaults looks like the following:
 }
 ```
 
-All json and will be loaded at the start of the webpack config incase it exist.
+All json and will be loaded at the start of the webpack config in case it exists.
 
 #### Environment variables
 

@@ -1,7 +1,6 @@
 {
     "name": "@jitesoft/simple-webpack",
-    "version": "1.10.0",
-    "type": "",
+    "version": "1.11.0",
     "license": "SEE LICENSE IN LICENSE",
     "bin": "init.js",
     "files": [
@@ -21,7 +20,7 @@
         "url": "https://github.com/jitesoft/simple-webpack/issues",
         "email": "sec@jitesoft.com"
     },
-    "description": "Initialize a simple webpack configuration including all that you might need with a single command!",
+    "description": "Initialize a webpack configuration including all that you might need with a single command!",
     "keywords": [
         "webpack",
         "sass",
