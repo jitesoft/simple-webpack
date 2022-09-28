@@ -73,19 +73,21 @@ if (process.env.WEBPACK_DEV_SERVER) {
   devServer = {
     // For full options and more in depth description of the dev-server, check
     // out the following link: https://webpack.js.org/configuration/dev-server/
-    contentBase: Path.join(__dirname, 'dist'),
-    contentBasePublicPath: ``,
-    publicPath: configuration.publicPath,
+    static: {
+      directory: Path.join(__dirname, 'dist'),
+      publicPath: configuration.publicPath,
+      watch: true
+    },
+    client: {
+      logging: 'info',
+      overlay: { errors: true, warnings: true },
+      progress: true,
+      reconnect: true,
+    },
+    liveReload: true,
     compress: true,
     port: configuration.devServerPort,
     hot: true,
-    stats: 'minimal',
-    injectClient: true,
-    injectHot: true,
-    overlay: {
-      errors: true,
-      warnings: false
-    },
     // You can uncomment the below line if you don't want to bother
     // with 'allowedHosts' list. But it comes with security
     // risks in case you are exposing the application to the "open net"!
@@ -95,7 +97,7 @@ if (process.env.WEBPACK_DEV_SERVER) {
       'localhost'
     ],
     onListening: function (server) {
-      const port = server.listeningApp.address().port;
+      const port = server.server.address().port;
       console.info('********************************************************************************');
       console.info('           @jitesoft/simple-webpack (and WebPack) presents!                     ');
       console.info(`           ${pkg.name} - ${pkg.version}                                         `);
@@ -169,30 +171,12 @@ plugins.push(
     }],
     overrideExtension: false
   }),
-  // Imagemin compresses images passed through it, yay!
-  // It's important that this plugin is defined AFTER the copy webpack plugin.
-  // If it is not, it will not be able to compress the images.
-  new ImageMinPlugin({
-    test: /\.(jpe?g|png|gif|tif|svg)$/i,
-    minimizerOptions: {
-      // All the imagemin plugins are loaded from an array in the package.json config
-      // property. You can change the plugin options from there if wanted.
-      // Check out the following links for more specific information.
-      // https://github.com/webpack-contrib/image-minimizer-webpack-plugin
-      // https://github.com/imagemin/imagemin
-      plugins: configuration.images.plugins
-    },
-    include: 'assets/images',
-    filename: '[path][name].[ext]',
-    loader: true
-  }),
   // This plugin allow us to extract the CSS from the javascript.
   // Without it the css would be included in the JS code, something some
   // people might get a bit confused by.
   new MiniCssExtractPlugin({
     filename: 'index.css',
     chunkFilename: 'chunks/[id].css',
-    publicPath: `${configuration.publicPath}/${configuration.css.outputDir}`
   })
 );
 
@@ -204,6 +188,24 @@ module.exports = {
   // So the minimizer option gets two minification plugins, one for js one for css.
   optimization: (process.env.NODE_ENV === 'production' ? {
     minimizer: [
+      // Imagemin compresses images passed through it, yay!
+      // It's important that this plugin is defined AFTER the copy webpack plugin.
+      // If it is not, it will not be able to compress the images.
+      new ImageMinPlugin({
+        test: /\.(jpe?g|png|gif|tif|svg)$/i,
+        minimizer: {
+          options: {
+            // All the imagemin plugins are loaded from an array in the package.json config
+            // property. You can change the plugin options from there if wanted.
+            // Check out the following links for more specific information.
+            // https://github.com/webpack-contrib/image-minimizer-webpack-plugin
+            // https://github.com/imagemin/imagemin
+            plugins: configuration.images.plugins
+          }
+        },
+        deleteOriginalAssets: false,
+        loader: true
+      }),
       new TerserJSPlugin({}),
       new CssMinimizer({
         parallel: true, // Change to false or a set number of threads if it uses too much.
@@ -317,10 +319,7 @@ module.exports = {
           {
             loader: MiniCssExtractPlugin.loader,
             options: {
-              outputPath: '',
               publicPath: `${configuration.publicPath}/${configuration.css.outputDir}`,
-              name: '[name].[ext]',
-              hmr: !!process.env.WEBPACK_DEV_SERVER
             }
           },
           'css-loader',
@@ -335,7 +334,7 @@ module.exports = {
       {
         // In this configuration all the images are moved with the `file-loader`.
         // I usually prefer to bake the smaller images into the javascript or css
-        // but this will be more easy to manage!
+        // but this will be easier to manage!
         test: /\.(ico|jpe?g|png|gif|tif|webp|svg)$/i,
         use: [
           ...extraImageLoaders,
